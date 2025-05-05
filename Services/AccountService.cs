@@ -38,7 +38,6 @@ namespace Services
 				await _context.SaveChangesAsync();
 
 				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
-
 				return new ServiceResponse<string> { Code = 1, Message = "Register Successful", Data = token };
 			}
 			catch (DbUpdateConcurrencyException ex)
@@ -50,5 +49,7 @@ namespace Services
 		{
 			return _passwordHasher.VerifyPassword(enteredPassword, storedHashedPassword);
 		}
+		
+		
 	}
 }

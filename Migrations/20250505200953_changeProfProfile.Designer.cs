@@ -12,8 +12,8 @@ using context;
 namespace info_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250429211923_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250505200953_changeProfProfile")]
+    partial class changeProfProfile
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,12 +37,7 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Methods");
                 });
@@ -71,14 +66,47 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
+                    b.HasKey("Id");
+
+                    b.ToTable("Niveaux");
+                });
+
+            modelBuilder.Entity("Models.ProfProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Cv")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.PrimitiveCollection<int[]>("Methodes")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Niveaux")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Services")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Specialities")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Niveaux");
+                    b.ToTable("ProfProfiles");
                 });
 
             modelBuilder.Entity("Models.Reunion", b =>
@@ -147,20 +175,15 @@ namespace info_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("image")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Services");
                 });
@@ -184,16 +207,29 @@ namespace info_backend.Migrations
                     b.Property<int>("ServiceId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ServiceId");
 
+                    b.ToTable("Specialities");
+                });
+
+            modelBuilder.Entity("Models.StudentProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("Specialities");
+                    b.ToTable("StudentProfile");
                 });
 
             modelBuilder.Entity("Models.User", b =>
@@ -203,13 +239,6 @@ namespace info_backend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("City")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Cv")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -247,18 +276,15 @@ namespace info_backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Models.Method", b =>
+            modelBuilder.Entity("Models.ProfProfile", b =>
                 {
-                    b.HasOne("Models.User", null)
-                        .WithMany("methodes")
-                        .HasForeignKey("UserId");
-                });
+                    b.HasOne("Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-            modelBuilder.Entity("Models.Niveau", b =>
-                {
-                    b.HasOne("Models.User", null)
-                        .WithMany("niveaux")
-                        .HasForeignKey("UserId");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.Reunion", b =>
@@ -272,13 +298,6 @@ namespace info_backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Models.Service", b =>
-                {
-                    b.HasOne("Models.User", null)
-                        .WithMany("Services")
-                        .HasForeignKey("UserId");
-                });
-
             modelBuilder.Entity("Models.Speciality", b =>
                 {
                     b.HasOne("Models.Service", "Service")
@@ -287,11 +306,18 @@ namespace info_backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Models.User", null)
-                        .WithMany("Specialities")
-                        .HasForeignKey("UserId");
-
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("Models.StudentProfile", b =>
+                {
+                    b.HasOne("Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Models.User", b =>
@@ -303,17 +329,6 @@ namespace info_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Models.User", b =>
-                {
-                    b.Navigation("Services");
-
-                    b.Navigation("Specialities");
-
-                    b.Navigation("methodes");
-
-                    b.Navigation("niveaux");
                 });
 #pragma warning restore 612, 618
         }

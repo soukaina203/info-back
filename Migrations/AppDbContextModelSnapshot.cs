@@ -34,12 +34,7 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProfProfileId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfProfileId");
 
                     b.ToTable("Methods");
                 });
@@ -68,12 +63,7 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProfProfileId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfProfileId");
 
                     b.ToTable("Niveaux");
                 });
@@ -89,6 +79,22 @@ namespace info_backend.Migrations
                     b.Property<string>("Cv")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.PrimitiveCollection<int[]>("Methodes")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Niveaux")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Services")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
+                    b.PrimitiveCollection<int[]>("Specialities")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -166,20 +172,15 @@ namespace info_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProfProfileId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("image")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfProfileId");
 
                     b.ToTable("Services");
                 });
@@ -200,15 +201,10 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ProfProfileId")
-                        .HasColumnType("integer");
-
                     b.Property<int>("ServiceId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProfProfileId");
 
                     b.HasIndex("ServiceId");
 
@@ -277,20 +273,6 @@ namespace info_backend.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Models.Method", b =>
-                {
-                    b.HasOne("Models.ProfProfile", null)
-                        .WithMany("Methodes")
-                        .HasForeignKey("ProfProfileId");
-                });
-
-            modelBuilder.Entity("Models.Niveau", b =>
-                {
-                    b.HasOne("Models.ProfProfile", null)
-                        .WithMany("Niveaux")
-                        .HasForeignKey("ProfProfileId");
-                });
-
             modelBuilder.Entity("Models.ProfProfile", b =>
                 {
                     b.HasOne("Models.User", "User")
@@ -313,19 +295,8 @@ namespace info_backend.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Models.Service", b =>
-                {
-                    b.HasOne("Models.ProfProfile", null)
-                        .WithMany("Services")
-                        .HasForeignKey("ProfProfileId");
-                });
-
             modelBuilder.Entity("Models.Speciality", b =>
                 {
-                    b.HasOne("Models.ProfProfile", null)
-                        .WithMany("Specialities")
-                        .HasForeignKey("ProfProfileId");
-
                     b.HasOne("Models.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -355,17 +326,6 @@ namespace info_backend.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("Models.ProfProfile", b =>
-                {
-                    b.Navigation("Methodes");
-
-                    b.Navigation("Niveaux");
-
-                    b.Navigation("Services");
-
-                    b.Navigation("Specialities");
                 });
 #pragma warning restore 612, 618
         }

@@ -9,6 +9,6 @@ namespace Models
     {
         public int Id { get; set; }
         public string Nom { get; set; }
-        public string image { get; set; }
+        public string Image { get; set; }
     }
 }
