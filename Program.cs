@@ -21,6 +21,7 @@ builder.Services.AddAuthentication();
 builder.Services.AddScoped<PasswordHasher>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<UploadService>();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 

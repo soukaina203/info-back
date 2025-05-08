@@ -1,20 +1,18 @@
-using Microsoft.AspNetCore.Mvc;
-using Models;           // Make sure you have a User or Account model in here
+using Models;        
 using context;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults;
-using System.Security.Claims;          // This should be your actual namespace (e.g., MyApp.Data)
+
 using DTO;
-using Services;
+
 namespace Services
 {
 
 	public class AccountService
 	{
 		private readonly PasswordHasher _passwordHasher;
-		private readonly AppDbContext _context;
 		private readonly JwtService _jwtService;
 
+		private readonly AppDbContext _context;
 		public AccountService(PasswordHasher passwordHasher, AppDbContext context, JwtService jwtService)
 		{
 			_passwordHasher = passwordHasher;
