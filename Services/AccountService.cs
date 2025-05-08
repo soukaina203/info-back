@@ -23,12 +23,12 @@ namespace Services
 
 		}
 
-		public async Task<ServiceResponse<string>> RegisterUser(User user)
+		public async Task<RegistrationResponse<string>> RegisterUser(User user)
 		{
 			var emailExiste = await _context.Users.FirstOrDefaultAsync(e => e.Email == user.Email);
 			if (emailExiste != null)
 			{
-				return new ServiceResponse<string> { Code = -1, Message = "Email already exists" };
+				return new RegistrationResponse<string> { Code = -1, Message = "Email already exists" };
 			}
 
 			user.Password = _passwordHasher.HashPassword(user.Password);
@@ -38,18 +38,43 @@ namespace Services
 				await _context.SaveChangesAsync();
 
 				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
-				return new ServiceResponse<string> { Code = 1, Message = "Register Successful", Data = token };
+				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Data = token, UserId = user.Id };
 			}
 			catch (DbUpdateConcurrencyException ex)
 			{
-				return new ServiceResponse<string> { Code = -2, Message = ex.Message };
+				return new RegistrationResponse<string> { Code = -2, Message = ex.Message };
 			}
+		}
+
+		public async Task<RegistrationResponse<string>> RegisterTeacher(ProfInscriptionDTO user)
+		{
+			// ProfInscription DTO = USER , Prof
+			var userRegistrationResult = await RegisterUser(user.User);
+			if (userRegistrationResult.Code != 1 || userRegistrationResult.UserId == 0)
+			{
+				return userRegistrationResult; // failed user registration
+			}
+			user.ProfProfile.UserId = userRegistrationResult.UserId;
+			try
+			{
+				await _context.ProfProfiles.AddAsync(user.ProfProfile);
+				await _context.SaveChangesAsync();
+
+				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully" };
+			}
+			catch (DbUpdateException ex)
+			{
+				return new RegistrationResponse<string> { Code = -3, Message = "Teacher profile creation failed: " + ex.Message };
+			}
+
+
+
 		}
 		public bool CheckPassword(string enteredPassword, string storedHashedPassword)
 		{
 			return _passwordHasher.VerifyPassword(enteredPassword, storedHashedPassword);
 		}
-		
-		
+
+
 	}
 }
