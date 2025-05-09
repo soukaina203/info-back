@@ -12,6 +12,6 @@ namespace Models
         public string Image { get; set; }
         public int ServiceId { get; set; }
         public virtual Service? Service { get; set; }
-        
+
     }
 }

@@ -1,8 +1,8 @@
-using Models;        
+using Models;
 using context;
 using Microsoft.EntityFrameworkCore;
-
 using DTO;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Services
 {
@@ -21,6 +21,43 @@ namespace Services
 
 		}
 
+		public async Task<loginResponse> Login(LoginDTO model)
+		{
+			if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+			{
+				return new loginResponse { Code = -4, Message = "Email | password required" };
+			}
+			var user = await _context.Users.Where(x => x.Email == model.Email).AsNoTracking().FirstOrDefaultAsync();
+			if (user == null)
+			{
+				return new loginResponse { Message = "Email error", Code = -3 };
+
+			}
+
+			var newHash = _passwordHasher.HashPassword(model.Password);
+            if (newHash != user.Password)
+			{
+				return new loginResponse { Message = "Error Password", Code = -1 };
+			}
+
+			var accessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
+			var refreshToken = _jwtService.GenerateRefreshToken();
+			user.RefreshToken = refreshToken;
+			user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+			_context.Users.Update(user);
+			await _context.SaveChangesAsync();
+
+			return new loginResponse { Message = "Successfull login", Code = 1 ,Token=accessToken};
+		}
+
+
+
+
+
+
+
+
+
 		public async Task<RegistrationResponse<string>> RegisterUser(User user)
 		{
 			var emailExiste = await _context.Users.FirstOrDefaultAsync(e => e.Email == user.Email);
@@ -32,8 +69,8 @@ namespace Services
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{
-				await _context.Users.AddAsync(user);
-				await _context.SaveChangesAsync();
+				_ = await _context.Users.AddAsync(user);
+				_ = await _context.SaveChangesAsync();
 
 				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
 				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Data = token, UserId = user.Id };
@@ -53,10 +90,16 @@ namespace Services
 				return userRegistrationResult; // failed user registration
 			}
 			user.ProfProfile.UserId = userRegistrationResult.UserId;
+			var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
+			if (registeredUser != null)
+			{
+				user.ProfProfile.User = registeredUser;
+			}
+
 			try
 			{
-				await _context.ProfProfiles.AddAsync(user.ProfProfile);
-				await _context.SaveChangesAsync();
+				_ = await _context.ProfProfiles.AddAsync(user.ProfProfile);
+				_ = await _context.SaveChangesAsync();
 
 				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully" };
 			}

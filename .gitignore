@@ -11,7 +11,7 @@
 **/out
 
 publish/**
-
+.env
 
 # db/dev.db
 

@@ -12,8 +12,8 @@ using context;
 namespace info_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250505200953_changeProfProfile")]
-    partial class changeProfProfile
+    [Migration("20250509162922_addTokenAttr")]
+    partial class addTokenAttr
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -261,6 +261,13 @@ namespace info_backend.Migrations
 
                     b.Property<string>("Photo")
                         .HasColumnType("text");
+
+                    b.Property<string>("RefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("RefreshTokenExpiryTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");

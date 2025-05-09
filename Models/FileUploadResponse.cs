@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-	public class FileUploadResponse
-{
-	public string Msg { get; set; }
-	public string FileName { get; set; }
-}
+    public class FileUploadResponse
+    {
+        public string Msg { get; set; }
+        public string FileName { get; set; }
+    }
 
 
 

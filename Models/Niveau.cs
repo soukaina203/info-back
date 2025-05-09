@@ -4,7 +4,7 @@ namespace Models
 {
     public class Niveau
     {
-        
+
         public int Id { get; set; }
         public string Nom { get; set; }
         public double CoursLigneGroupe { get; set; }

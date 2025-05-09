@@ -4,33 +4,33 @@ using Services;
 
 namespace Controllers
 {
-	[ApiController]
-	[Route("api/[controller]/[action]")]
-	public class UploadController : ControllerBase
-	{
-		readonly UploadService _uploadService;
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class UploadController : ControllerBase
+    {
+        readonly UploadService _uploadService;
 
-		public UploadController(UploadService uploadService)
-		{
-			_uploadService = uploadService;
-		}
-		
-		[HttpPost]
+        public UploadController(UploadService uploadService)
+        {
+            _uploadService = uploadService;
+        }
 
-		public async Task<IActionResult> UploadFile(IFormFile file)
-		{
-			var result = await _uploadService.UploadFile(file);
+        [HttpPost]
 
-			if (result.Code == 1)
-				return Ok(result);
-			if (result.Code == -1)
-				return Ok(result);
+        public async Task<IActionResult> UploadFile(IFormFile file)
+        {
+            var result = await _uploadService.UploadFile(file);
 
-			return StatusCode(500, result);
-		}
+            if (result.Code == 1)
+                return Ok(result);
+            if (result.Code == -1)
+                return Ok(result);
 
-
+            return StatusCode(500, result);
+        }
 
 
-	}
+
+
+    }
 }
