@@ -1,23 +1,23 @@
 using context;
 using Microsoft.EntityFrameworkCore;
 using Services;
+using DotNetEnv;
+
+Env.Load(); 
 var builder = WebApplication.CreateBuilder(args);
 
-var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>();
+// Read from environment (already loaded by DotNetEnv)
+var allowedOrigins = Environment.GetEnvironmentVariable("AllowedOrigins");
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("CorsPolicy", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod()
-              .AllowCredentials();
-    });
+	options.AddPolicy("CorsPolicy", policy =>
+		{
+			policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod().AllowCredentials();
+	});
 });
 
 
-DotNetEnv.Env.Load();
 
 // Add .env variables to configuration
 builder.Configuration.AddEnvironmentVariables();
@@ -27,12 +27,13 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication();
 
-builder.Services.AddScoped<PasswordHasher>();
+builder.Services.AddScoped<PasswordHashing>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<UploadService>();
+builder.Services.AddScoped<EmailService>();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
 
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseNpgsql(connectionString));
@@ -40,14 +41,14 @@ options.UseNpgsql(connectionString));
 builder.Services.AddControllers();
 
 var app = builder.Build();
-app.UseCors("AllowFrontend");
+app.UseCors("CorsPolicy");
 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    _ = app.UseSwagger();
-    _ = app.UseSwaggerUI();
+	_ = app.UseSwagger();
+	_ = app.UseSwaggerUI();
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 namespace Services
 {
 
-    public class PasswordHasher
+    public class PasswordHashing
     {
         private readonly PasswordHasher<object> _hasher = new();
 

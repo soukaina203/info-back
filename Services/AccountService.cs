@@ -3,22 +3,23 @@ using context;
 using Microsoft.EntityFrameworkCore;
 using DTO;
 using Microsoft.AspNetCore.Mvc;
-
+using Services;
 namespace Services
 {
 
 	public class AccountService
 	{
-		private readonly PasswordHasher _passwordHasher;
+		private readonly PasswordHashing _passwordHasher;
 		private readonly JwtService _jwtService;
+		private readonly EmailService _emailService;
 
 		private readonly AppDbContext _context;
-		public AccountService(PasswordHasher passwordHasher, AppDbContext context, JwtService jwtService)
+		public AccountService(PasswordHashing passwordHasher, AppDbContext context, JwtService jwtService,EmailService emailService)
 		{
 			_passwordHasher = passwordHasher;
 			_context = context;
 			_jwtService = jwtService;
-
+			_emailService = emailService;
 		}
 
 		public async Task<loginResponse> Login(LoginDTO model)
@@ -34,10 +35,10 @@ namespace Services
 
 			}
 
-			var newHash = _passwordHasher.HashPassword(model.Password);
-            if (newHash != user.Password)
+			var result = CheckPassword(model.Password, user.Password);
+			if (!result)
 			{
-				return new loginResponse { Message = "Error Password", Code = -1 };
+				return new loginResponse { Message = model.Password, Code = -1  };
 			}
 
 			var accessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
@@ -47,7 +48,7 @@ namespace Services
 			_context.Users.Update(user);
 			await _context.SaveChangesAsync();
 
-			return new loginResponse { Message = "Successfull login", Code = 1 ,Token=accessToken};
+			return new loginResponse { Message = "Successfull login", Code = 1, Token = accessToken };
 		}
 
 
@@ -69,10 +70,14 @@ namespace Services
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{
-				_ = await _context.Users.AddAsync(user);
-				_ = await _context.SaveChangesAsync();
+				 await _context.Users.AddAsync(user);
+				 await _context.SaveChangesAsync();
 
 				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
+				var emailSendingResult= _emailService.SendEmailAsync(user.Email,"Test Email from Brevo",
+				"<h1>Hello!</h1><p>This is a <b>test email</b> sent via Brevo SMTP service.</p>"
+				);
+				
 				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Data = token, UserId = user.Id };
 			}
 			catch (DbUpdateConcurrencyException ex)
@@ -80,6 +85,8 @@ namespace Services
 				return new RegistrationResponse<string> { Code = -2, Message = ex.Message };
 			}
 		}
+
+
 
 		public async Task<RegistrationResponse<string>> RegisterTeacher(ProfInscriptionDTO user)
 		{
@@ -108,9 +115,12 @@ namespace Services
 				return new RegistrationResponse<string> { Code = -3, Message = "Teacher profile creation failed: " + ex.Message };
 			}
 
-
-
 		}
+		
+		
+		
+		
+		
 		public bool CheckPassword(string enteredPassword, string storedHashedPassword)
 		{
 			return _passwordHasher.VerifyPassword(enteredPassword, storedHashedPassword);
