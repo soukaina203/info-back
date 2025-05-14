@@ -61,15 +61,7 @@ namespace Controllers
 			return StatusCode(500, result);
 		}
 		
-		[HttpGet]
-		public async Task<string> MailTest()
-		{
-			await _emailService.SendEmailAsync("tawba431@gmail.com","Test Email from Brevo",	
-			"<h1>Hello!</h1><p>This is a <b>test email</b> sent via Brevo SMTP service.</p>");
-			return "Git";
-			
-		}
-		
+
 
 		[HttpGet]
 		public async Task<IActionResult> GetServicesData()

@@ -6,54 +6,55 @@ using MailKit.Security;
 
 namespace Services
 {
-    public class EmailService
-    {
-        // Récupération du serveur SMTP, de l'identifiant et du mot de passe
-        private readonly string smtpServer = Environment.GetEnvironmentVariable("Serveur");
-        private readonly string smtpUser = Environment.GetEnvironmentVariable("Identifiant");
-        private readonly string smtpPass = Environment.GetEnvironmentVariable("Pwd");
-        private readonly string Email = Environment.GetEnvironmentVariable("Email");
+	public class EmailService
+	{
+		// Récupération du serveur SMTP, de l'identifiant et du mot de passe
+		private readonly string smtpServer = Environment.GetEnvironmentVariable("SMTP_HOST");
+		private readonly string smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
+		private readonly string smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
+		private readonly string SenderName = Environment.GetEnvironmentVariable("SenderName");
+		private readonly string SenderEmail = Environment.GetEnvironmentVariable("SenderEmail");
 
-        // Récupération du port SMTP et gestion de la conversion
-        private readonly int smtpPort;
+		private readonly int smtpPort=587;
 
-        public EmailService() // To be reviewed 
-        {
-            string portEnv = Environment.GetEnvironmentVariable("Port");
 
-            // Convertir le port en entier, ou utiliser 587 par défaut si la conversion échoue
-            if (!string.IsNullOrEmpty(portEnv) && int.TryParse(portEnv, out int parsedPort))
-            {
-                smtpPort = parsedPort;
-            }
-            else
-            {
-                smtpPort = 587;  // Port par défaut si la conversion échoue
-                Console.WriteLine("Le port SMTP n'est pas valide ou manquant, utilisation du port 587 par défaut.");
-            }
-        }
 
-		public async Task SendEmailAsync(string toEmail, string subject, string htmlContent)
-		{
-			var email = new MimeMessage();
+	public async Task<bool> SendVerificationEmailAsync(string toEmail, string Name, string Token)
+{
+	try
+	{
+		string html = await System.IO.File.ReadAllTextAsync("Templates/Emails/EmailVerification.html");
+		html = html
+			.Replace("{{Name}}", Name)
+			.Replace("{{token}}", Token);
 
-			//  Adresse expéditeur vérifiée (que tu as validée dans Brevo)
-			email.From.Add(MailboxAddress.Parse(Email));
+		var email = new MimeMessage();
 
-			//  Destinataire
-			email.To.Add(MailboxAddress.Parse(toEmail));
+		// Ajout de l'expéditeur
+		email.From.Add(new MailboxAddress(SenderName, SenderEmail));
 
-			// Sujet et contenu HTML
-			email.Subject = subject;
-			email.Body = new TextPart("html") { Text = htmlContent };
+		// Destinataire
+		email.To.Add(MailboxAddress.Parse(toEmail));
 
-			//  Envoi via SMTP
-			using var smtp = new SmtpClient();
-			await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
-			await smtp.AuthenticateAsync(smtpUser, smtpPass);
-			await smtp.SendAsync(email);
-			await smtp.DisconnectAsync(true);
-		}
+		// Sujet et corps
+		email.Body = new TextPart("html") { Text = html };
 
-    }
+		using var smtp = new SmtpClient();
+
+		await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+		await smtp.AuthenticateAsync(smtpUser, smtpPass);
+		await smtp.SendAsync(email);
+		await smtp.DisconnectAsync(true);
+		return true;
+		
+	}
+	catch (Exception ex)
+	{
+		return false;
+	}
+}
+
+
+
+	}
 }

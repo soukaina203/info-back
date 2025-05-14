@@ -34,6 +34,11 @@ namespace Services
 				return new loginResponse { Message = "Email error", Code = -3 };
 
 			}
+			if (user.Status == false)
+			{
+				return new loginResponse { Message = "Compte non activé Veuillez consulter votre boîte mail et cliquer sur le lien d’activation pour activer votre compte.", Code = -4 };
+
+			}
 
 			var result = CheckPassword(model.Password, user.Password);
 			if (!result)
@@ -74,11 +79,13 @@ namespace Services
 				 await _context.SaveChangesAsync();
 
 				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
-				var emailSendingResult= _emailService.SendEmailAsync(user.Email,"Test Email from Brevo",
-				"<h1>Hello!</h1><p>This is a <b>test email</b> sent via Brevo SMTP service.</p>"
-				);
-				
-				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Data = token, UserId = user.Id };
+				var name= user.FirstName + " " + user.LastName;
+				var emailSendingResult=await _emailService.SendVerificationEmailAsync(user.Email,name ,token);
+				if (emailSendingResult!=true)
+				{
+				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, UserId = user.Id ,IsEmailSended = false  };
+				}
+				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token, UserId = user.Id ,IsEmailSended = true };
 			}
 			catch (DbUpdateConcurrencyException ex)
 			{
