@@ -36,7 +36,7 @@ namespace Services
                 issuer: _issuer,
                 audience: _audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(15),
+                expires: DateTime.UtcNow.AddMinutes(60), // for dev then it will be for 15min
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

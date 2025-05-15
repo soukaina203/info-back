@@ -24,37 +24,49 @@ namespace Services
 
 		public async Task<loginResponse> Login(LoginDTO model)
 		{
-			if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
-			{
-				return new loginResponse { Code = -4, Message = "Email | password required" };
-			}
-			var user = await _context.Users.Where(x => x.Email == model.Email).AsNoTracking().FirstOrDefaultAsync();
-			if (user == null)
-			{
-				return new loginResponse { Message = "Email error", Code = -3 };
+				if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Password))
+				{
+					return new loginResponse { Code = -4, Message = "Email | password required" };
+				}
 
-			}
-			if (user.Status == false)
-			{
-				return new loginResponse { Message = "Compte non activé Veuillez consulter votre boîte mail et cliquer sur le lien d’activation pour activer votre compte.", Code = -4 };
+				var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+				if (user == null)
+				{
+					return new loginResponse { Message = "Email error", Code = -3 };
+				}
 
-			}
+				if (!user.Status)
+				{
+					return new loginResponse
+					{
+						Message = "Compte non activé. Veuillez consulter votre boîte mail.",
+						Code = -4
+					};
+				}
 
-			var result = CheckPassword(model.Password, user.Password);
-			if (!result)
-			{
-				return new loginResponse { Message = model.Password, Code = -1  };
-			}
+				if (!CheckPassword(model.Password, user.Password))
+				{
+					return new loginResponse { Message = "Mot de passe incorrect", Code = -1 };
+				}
 
-			var accessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
-			var refreshToken = _jwtService.GenerateRefreshToken();
-			user.RefreshToken = refreshToken;
-			user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
-			_context.Users.Update(user);
-			await _context.SaveChangesAsync();
+				var accessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
+				var refreshToken = _jwtService.GenerateRefreshToken();
 
-			return new loginResponse { Message = "Successfull login", Code = 1, Token = accessToken };
+				user.RefreshToken = refreshToken;
+				user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(30);
+
+				_context.Users.Update(user);
+				await _context.SaveChangesAsync();
+
+				return new loginResponse
+				{
+					Message = "Successfull login",
+					Code = 1,
+					Token = accessToken,
+					RefreshToken = refreshToken 
+				};
 		}
+
 
 
 
@@ -71,7 +83,6 @@ namespace Services
 			{
 				return new RegistrationResponse<string> { Code = -1, Message = "Email already exists" };
 			}
-
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{

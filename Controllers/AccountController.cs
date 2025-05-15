@@ -15,27 +15,61 @@ namespace Controllers
 		private readonly AppDbContext _context;
 		private readonly AccountService _accountService;
 		private readonly EmailService _emailService;
+		private readonly JwtService _jwtService;
 
-		public AccountController(AppDbContext context, AccountService accountService,EmailService emailService)
+		
+
+		public AccountController(AppDbContext context, AccountService accountService,EmailService emailService, JwtService jwtService)
 		{
 			_context = context;
+			_jwtService = jwtService;
 			_accountService = accountService;
 			_emailService=emailService;
 		}
+
 
 		[HttpPost]
 		public async Task<IActionResult> Login(LoginDTO user)
 		{
 			var result = await _accountService.Login(user);
 
-			if (result.Code == 1 || result.Code != 1)
-				return Ok(result);
+			// Si login réussi, on ajoute le refresh token dans le cookie
+			if (result.Code == 1 && !string.IsNullOrEmpty(result.RefreshToken))
+			{
+				Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+				{
+					HttpOnly = true,
+					Secure = true,
+					SameSite = SameSiteMode.Strict,
+					Expires = DateTime.UtcNow.AddDays(30)
+				});
 
-			return StatusCode(500, result);
+				// On peut retourner sans le refreshToken dans le JSON (si tu veux le cacher côté frontend)
+				result.RefreshToken = null;
+			}
+
+			return Ok(result);
 		}
 
 
+		[HttpGet("{userId}")]
+		public async Task<IActionResult> ActiveAccount(int userId)
+		{
+			var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId);
 
+			if (user == null)
+			{
+				return NotFound("User not found.");
+			}
+
+			user.Status = true;
+			_context.Users.Update(user);
+			await _context.SaveChangesAsync();
+
+			return Ok(new{Code = 1 ,Message="success"});
+		}
+
+		
 		[HttpPost]
 		public async Task<IActionResult> RegisterStudent(User user)
 		{
@@ -72,5 +106,23 @@ namespace Controllers
 			var methods = await _context.Methods.ToListAsync();
 			return Ok(new { services = services, specialities = specialities, niveaux = niveaux, methods = methods });
 		}
+		
+		
+		[HttpGet(	)]
+		public async Task<IActionResult> Refresh()
+		{
+			var refreshToken = Request.Cookies["refreshToken"];
+			if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
+
+			var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+
+			if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+				return Unauthorized();
+
+			var newAccessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
+
+			return Ok(new { token = newAccessToken });
+		}
+
 	}
-}
+}	
