@@ -12,6 +12,7 @@
 
 publish/**
 .env
+wwwroot/cvs/
 
 # db/dev.db
 

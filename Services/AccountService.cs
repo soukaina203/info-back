@@ -68,14 +68,6 @@ namespace Services
 		}
 
 
-
-
-
-
-
-
-
-
 		public async Task<RegistrationResponse<string>> RegisterUser(User user)
 		{
 			var emailExiste = await _context.Users.FirstOrDefaultAsync(e => e.Email == user.Email);
@@ -88,15 +80,15 @@ namespace Services
 			{
 				 await _context.Users.AddAsync(user);
 				 await _context.SaveChangesAsync();
-
-				var token = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
+				var registrerdUser =await _context.Users.Where(u=>u.Email== user.Email).FirstOrDefaultAsync();
+				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email); // problem because id is 0 
 				var name= user.FirstName + " " + user.LastName;
-				var emailSendingResult=await _emailService.SendVerificationEmailAsync(user.Email,name ,token);
+				var emailSendingResult=await _emailService.SendVerificationEmailAsync(user.Email,name ,token); // Done 
 				if (emailSendingResult!=true)
 				{
 				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, UserId = user.Id ,IsEmailSended = false  };
 				}
-				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token, UserId = user.Id ,IsEmailSended = true };
+				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token, UserId = user.Id ,IsEmailSended = true, User=user  };
 			}
 			catch (DbUpdateConcurrencyException ex)
 			{
@@ -108,25 +100,24 @@ namespace Services
 
 		public async Task<RegistrationResponse<string>> RegisterTeacher(ProfInscriptionDTO user)
 		{
-			// ProfInscription DTO = USER , Prof
-			var userRegistrationResult = await RegisterUser(user.User);
+			var userRegistrationResult = await RegisterUser(user.user);
 			if (userRegistrationResult.Code != 1 || userRegistrationResult.UserId == 0)
 			{
-				return userRegistrationResult; // failed user registration
+				return new RegistrationResponse<string> { Code = 1, Message = "Something went wrong in RegisterUser" };
 			}
-			user.ProfProfile.UserId = userRegistrationResult.UserId;
+			user.profProfile.UserId = userRegistrationResult.UserId;
 			var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
 			if (registeredUser != null)
 			{
-				user.ProfProfile.User = registeredUser;
+				user.profProfile.User = registeredUser;
 			}
 
 			try
 			{
-				_ = await _context.ProfProfiles.AddAsync(user.ProfProfile);
-				_ = await _context.SaveChangesAsync();
+				await _context.ProfProfiles.AddAsync(user.profProfile);
+				await _context.SaveChangesAsync();
 
-				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully" };
+				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully", Token = userRegistrationResult.Token , UserId = userRegistrationResult.UserId };
 			}
 			catch (DbUpdateException ex)
 			{

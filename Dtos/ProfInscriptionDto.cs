@@ -4,7 +4,7 @@ namespace DTO
 {
     public class ProfInscriptionDTO
     {
-        public User User { get; set; }
-        public ProfProfile ProfProfile { get; set; }
+        public User user { get; set; }
+        public ProfProfile profProfile { get; set; }
     }
 }

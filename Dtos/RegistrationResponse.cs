@@ -1,3 +1,4 @@
+using Models;
 namespace DTO
 {
 
@@ -9,6 +10,8 @@ namespace DTO
 
 		public int UserId { get; set; }
 		public bool? IsEmailSended { get; set; }
+		public User? User { get; set; }
+		
 
 	}
 
