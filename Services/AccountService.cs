@@ -78,6 +78,8 @@ namespace Services
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{
+				user.IsAdmin=false;
+				
 				 await _context.Users.AddAsync(user);
 				 await _context.SaveChangesAsync();
 				var registrerdUser =await _context.Users.Where(u=>u.Email== user.Email).FirstOrDefaultAsync();
