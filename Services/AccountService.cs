@@ -100,7 +100,9 @@ namespace Services
 				 _context.Entry(registrerdUser).State = EntityState.Modified;
 				 await _context.SaveChangesAsync();
 					
-				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, UserId = user.Id ,IsEmailSended = false , errors =emailSendingResult.ErrorMessage  };
+				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, 
+				UserId = user.Id ,IsEmailSended = false , errors =emailSendingResult.ErrorMessage 
+				,  smtpUser=emailSendingResult.smtpUser, smtpPass=emailSendingResult.smtpPass };
 				}
 				// if the mail is sent
 				 registrerdUser.Status = VerificationStatus.EmailSended; // before the mail sending
@@ -139,7 +141,8 @@ namespace Services
 				await _context.ProfProfiles.AddAsync(user.profProfile);
 				await _context.SaveChangesAsync();
 
-				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully", Token = userRegistrationResult.Token , UserId = userRegistrationResult.UserId };
+				return new RegistrationResponse<string> { Code = 1, Message = "Teacher registered successfully",
+				 Token = userRegistrationResult.Token , UserId = userRegistrationResult.UserId };
 			}
 			catch (DbUpdateException ex)
 			{

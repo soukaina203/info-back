@@ -40,17 +40,17 @@ namespace Services
 		email.Body = new TextPart("html") { Text = html };
 
 		using var smtp = new SmtpClient();
-
 		await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
 		await smtp.AuthenticateAsync(smtpUser, smtpPass);
+		
 		await smtp.SendAsync(email);
 		await smtp.DisconnectAsync(true);
-		return new EmailSendResult {Success = true };
+		return new EmailSendResult {Success = true  };
 		
 	}
 	catch (Exception ex)
 	{
-			return new EmailSendResult {Success = false , ErrorMessage=ex.Message  };
+			return new EmailSendResult {Success = false , ErrorMessage=ex.Message   };
 
 	}
 }

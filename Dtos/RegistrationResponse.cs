@@ -12,7 +12,7 @@ namespace DTO
 		public bool? IsEmailSended { get; set; }
 		public User? User { get; set; }
 		public string? errors { get; set; }
-		
+
 
 	}
 
