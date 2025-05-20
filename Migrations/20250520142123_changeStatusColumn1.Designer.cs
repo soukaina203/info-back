@@ -12,8 +12,8 @@ using context;
 namespace info_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250514135120_addStatusAttr")]
-    partial class addStatusAttr
+    [Migration("20250520142123_changeStatusColumn1")]
+    partial class changeStatusColumn1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -248,7 +248,7 @@ namespace info_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsAdmin")
+                    b.Property<bool?>("IsAdmin")
                         .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
@@ -271,8 +271,9 @@ namespace info_backend.Migrations
                     b.Property<int>("RoleId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("boolean");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Telephone")
                         .IsRequired()

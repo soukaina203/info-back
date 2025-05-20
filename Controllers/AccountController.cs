@@ -5,6 +5,7 @@ using Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DTO;
+using Enums;
 
 namespace Controllers
 {
@@ -62,7 +63,7 @@ namespace Controllers
 				return NotFound("User not found.");
 			}
 
-			user.Status = true;
+			user.Status = VerificationStatus.Verified;
 			_context.Users.Update(user);
 			await _context.SaveChangesAsync();
 

@@ -11,6 +11,7 @@ namespace DTO
 		public int UserId { get; set; }
 		public bool? IsEmailSended { get; set; }
 		public User? User { get; set; }
+		public string? errors { get; set; }
 		
 
 	}

@@ -3,7 +3,7 @@ using MimeKit;
 using System;
 using System.Threading.Tasks;
 using MailKit.Security;
-
+using DTO;
 namespace Services
 {
 	public class EmailService
@@ -19,7 +19,7 @@ namespace Services
 
 
 
-	public async Task<bool> SendVerificationEmailAsync(string toEmail, string Name, string Token)
+	public async Task<EmailSendResult> SendVerificationEmailAsync(string toEmail, string Name, string Token)
 {
 	try
 	{
@@ -45,12 +45,13 @@ namespace Services
 		await smtp.AuthenticateAsync(smtpUser, smtpPass);
 		await smtp.SendAsync(email);
 		await smtp.DisconnectAsync(true);
-		return true;
+		return new EmailSendResult {Success = true };
 		
 	}
 	catch (Exception ex)
 	{
-		return false;
+			return new EmailSendResult {Success = false , ErrorMessage=ex.Message  };
+
 	}
 }
 

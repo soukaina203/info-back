@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using DTO;
 using Microsoft.AspNetCore.Mvc;
 using Services;
+using Enums;
 namespace Services
 {
 
@@ -35,7 +36,7 @@ namespace Services
 					return new loginResponse { Message = "Email error", Code = -3 };
 				}
 
-				if (!user.Status)
+				if (user.Status!=VerificationStatus.Verified)
 				{
 					return new loginResponse
 					{
@@ -79,21 +80,40 @@ namespace Services
 			try
 			{
 				user.IsAdmin=false;
-				
+				// the user regitration should be always pending in the status until the email is send 
+				// then the status goes to false until the email is verified 
+				// then to true when the user verify the email
+				user.Status = VerificationStatus.Pending; // befaore the mail sending
 				 await _context.Users.AddAsync(user);
 				 await _context.SaveChangesAsync();
-				var registrerdUser =await _context.Users.Where(u=>u.Email== user.Email).FirstOrDefaultAsync();
-				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email); // problem because id is 0 
+				 
+				var registrerdUser =await _context.Users.Where(u=>u.Email== user.Email).FirstOrDefaultAsync(); // l utilisateur doit etre deja enregistre dans la base de donnees
+				
+				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email); // on doit utiliser l'id car il est inchangable
+				
 				var name= user.FirstName + " " + user.LastName;
-				var emailSendingResult=await _emailService.SendVerificationEmailAsync(user.Email,name ,token); // Done 
-				if (emailSendingResult!=true)
+				
+				var emailSendingResult= await _emailService.SendVerificationEmailAsync(user.Email,name ,token); // Done 
+				if (emailSendingResult.Success!=true)
 				{
-				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, UserId = user.Id ,IsEmailSended = false  };
+				registrerdUser.Status = VerificationStatus.Failed; // before the mail sending
+				 _context.Entry(registrerdUser).State = EntityState.Modified;
+				 await _context.SaveChangesAsync();
+					
+				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, UserId = user.Id ,IsEmailSended = false , errors =emailSendingResult.ErrorMessage  };
 				}
+				// if the mail is sent
+				 registrerdUser.Status = VerificationStatus.EmailSended; // before the mail sending
+				 _context.Entry(registrerdUser).State = EntityState.Modified;
+				 await _context.SaveChangesAsync();
+				
+			
 				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token, UserId = user.Id ,IsEmailSended = true, User=user  };
 			}
 			catch (DbUpdateConcurrencyException ex)
+			
 			{
+				
 				return new RegistrationResponse<string> { Code = -2, Message = ex.Message };
 			}
 		}
