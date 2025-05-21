@@ -83,12 +83,15 @@ namespace Services
 				// the user regitration should be always pending in the status until the email is send 
 				// then the status goes to false until the email is verified 
 				// then to true when the user verify the email
-				user.Status = VerificationStatus.Pending; // befaore the mail sending
+				user.Status = VerificationStatus.Pending; // before the mail sending
 				 await _context.Users.AddAsync(user);
 				 await _context.SaveChangesAsync();
 				 
 				var registrerdUser =await _context.Users.Where(u=>u.Email== user.Email).FirstOrDefaultAsync(); // l utilisateur doit etre deja enregistre dans la base de donnees
-				
+				if (registrerdUser==null)
+				{
+					return new RegistrationResponse<string> { Code = -4, Message = "failed to register the user " };
+				}
 				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email); // on doit utiliser l'id car il est inchangable
 				
 				var name= user.FirstName + " " + user.LastName;
@@ -102,7 +105,7 @@ namespace Services
 					
 				return new RegistrationResponse<string> { Code = 1, Message = "Email not sent", Token = token, 
 				UserId = user.Id ,IsEmailSended = false , errors =emailSendingResult.ErrorMessage 
-				,  smtpUser=emailSendingResult.smtpUser, smtpPass=emailSendingResult.smtpPass };
+				};
 				}
 				// if the mail is sent
 				 registrerdUser.Status = VerificationStatus.EmailSended; // before the mail sending
@@ -129,8 +132,8 @@ namespace Services
 			{
 				return new RegistrationResponse<string> { Code = 1, Message = "Something went wrong in RegisterUser" };
 			}
-			user.profProfile.UserId = userRegistrationResult.UserId;
-			var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
+            user.profProfile.UserId = userRegistrationResult.UserId;
+            var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
 			if (registeredUser != null)
 			{
 				user.profProfile.User = registeredUser;

@@ -6,7 +6,7 @@ using DTO;
 namespace Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
     public class UsersController : ControllerBase
     {
         private readonly UserService _userService;
@@ -28,7 +28,7 @@ namespace Controllers
             catch (System.Exception ex)
             {
                 // Ici tu peux gérer les erreurs (NotFound, etc.)
-                return NotFound(new { message = ex.Message });
+                return Ok(new { message = ex.Message });
             }
         }
     }
