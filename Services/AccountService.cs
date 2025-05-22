@@ -3,7 +3,7 @@ using context;
 using Microsoft.EntityFrameworkCore;
 using DTO;
 using Microsoft.AspNetCore.Mvc;
-using Services;
+using Utilities;
 using Enums;
 namespace Services
 {
@@ -63,6 +63,7 @@ namespace Services
 				{
 					Message = "Successfull login",
 					Code = 1,
+					UserId = user.Id,
 					Token = accessToken,
 					RefreshToken = refreshToken 
 				};
@@ -132,8 +133,8 @@ namespace Services
 			{
 				return new RegistrationResponse<string> { Code = 1, Message = "Something went wrong in RegisterUser" };
 			}
-            user.profProfile.UserId = userRegistrationResult.UserId;
-            var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
+			user.profProfile.UserId = userRegistrationResult.UserId;
+			var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
 			if (registeredUser != null)
 			{
 				user.profProfile.User = registeredUser;

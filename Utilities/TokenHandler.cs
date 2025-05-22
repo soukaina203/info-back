@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
-namespace Services
+namespace Utilities
 {
     public class JwtService
     {

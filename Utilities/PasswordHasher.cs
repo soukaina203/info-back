@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-namespace Services
+namespace Utilities
 {
 
     public class PasswordHashing

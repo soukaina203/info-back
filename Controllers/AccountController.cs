@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Models;           // Make sure you have a User or Account model in here
 using context;          // This should be your actual namespace (e.g., MyApp.Data)
 using Services;
+using Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using DTO;

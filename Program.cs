@@ -2,6 +2,7 @@ using context;
 using Microsoft.EntityFrameworkCore;
 using Services;
 using DotNetEnv;
+using Utilities;
 
 Env.Load(); 
 var builder = WebApplication.CreateBuilder(args);
