@@ -15,7 +15,7 @@ namespace Services
 			_context = context;
 		}
 
-		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file)
+		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file , string folderName)
 		{
 			if (file == null || file.Length == 0)
 			{ // code -1 failure
@@ -27,7 +27,7 @@ namespace Services
 				};
 			}
 
-			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "cvs");
+			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",folderName);
 
 			if (!Directory.Exists(uploadsFolder))
 			{

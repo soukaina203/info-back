@@ -13,6 +13,7 @@
 publish/**
 .env
 wwwroot/cvs/
+wwwroot/photos/
 
 # db/dev.db
 

@@ -5,17 +5,12 @@
 );
 
 START TRANSACTION;
-ALTER TABLE "Users" ALTER COLUMN "Status" TYPE integer;
+ALTER TABLE "Users" ALTER COLUMN "Password" DROP NOT NULL;
 
-ALTER TABLE "Users" ALTER COLUMN "IsAdmin" DROP NOT NULL;
-
-INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250520141655_changeStatusColumn', '9.0.4');
-
-ALTER TABLE "Users" ALTER COLUMN "Status" TYPE text;
+ALTER TABLE "ProfProfiles" ADD "City" text NOT NULL DEFAULT '';
 
 INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
-VALUES ('20250520142123_changeStatusColumn1', '9.0.4');
+VALUES ('20250523170101_cityProp', '9.0.4');
 
 COMMIT;
 

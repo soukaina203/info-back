@@ -55,9 +55,11 @@ namespace Services
 
 		// reason behind using ProfInscriptionDTO is that the user here contains the pwd too
 		// while in the ProfProfilDTO the user doesn't contain the password because we should not send back the password even if its hashed to the frontend
-		public async Task<ResponseDTO> Put(int id, ProfInscriptionDTO user)
+
+
+
+		public async Task<PutUserResponseDTO> Put(int id, ProfInscriptionDTO user)
 		{
-			// Récupérer depuis la base les champs sensibles qu'on ne reçoit jamais du frontend
 			var dbUser = await _context.Users
 				.AsNoTracking()
 				.Where(u => u.Id == id)
@@ -66,10 +68,9 @@ namespace Services
 
 			if (dbUser == null)
 			{
-				return new ResponseDTO { Code = 404, Message = "Utilisateur introuvable." };
+				return new PutUserResponseDTO { Code = 404, Message = "Utilisateur introuvable." };
 			}
 
-			// Si mot de passe non vide => on le hash, sinon on garde l'ancien
 			if (!string.IsNullOrWhiteSpace(user.user.Password))
 			{
 				user.user.Password = _passwordHasher.HashPassword(user.user.Password);
@@ -79,13 +80,10 @@ namespace Services
 				user.user.Password = dbUser.Password;
 			}
 
-			// Toujours restaurer isAdmin depuis la base (jamais depuis le frontend)
 			user.user.IsAdmin = dbUser.IsAdmin;
 
-			// Marquer l'utilisateur comme modifié
 			_context.Entry(user.user).State = EntityState.Modified;
 
-			// Si c'est un prof, marquer aussi le profil comme modifié
 			if (user.user.RoleId == 1 && user.profProfile != null)
 			{
 				_context.Entry(user.profProfile).State = EntityState.Modified;
@@ -94,14 +92,22 @@ namespace Services
 			try
 			{
 				await _context.SaveChangesAsync();
-				return new ResponseDTO { Code = 200, Message = "Success" };
+
+	
+				return new PutUserResponseDTO
+				{
+					Code = 200,
+					Message = "Success",
+					UserData = user.user ,
+					ProfData = user.profProfile != null ? user.profProfile:null
+					
+				};
 			}
 			catch (DbUpdateConcurrencyException ex)
 			{
-				return new ResponseDTO { Code = 500, Message = ex.Message };
+				return new PutUserResponseDTO { Code = 500, Message = ex.Message };
 			}
 		}
-
 
 
 

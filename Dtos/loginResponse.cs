@@ -1,3 +1,4 @@
+using DTO;
 namespace DTO
 {
 
@@ -9,8 +10,8 @@ namespace DTO
 
 		public string? Token { get; set; }
 		public string? RefreshToken { get; set; }
-		
-		
+
+		public UserDto UserData { get; set; }
 
 	}
 

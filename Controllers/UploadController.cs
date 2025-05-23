@@ -15,10 +15,10 @@ namespace Controllers
 			_uploadService = uploadService;
 		}
 
-		[HttpPost]
-		public async Task<IActionResult> UploadFile(IFormFile file)
+		[HttpPost("{folderName}")]
+		public async Task<IActionResult> UploadFile(IFormFile file,string folderName)
 		{
-			var result = await _uploadService.UploadFile(file);
+			var result = await _uploadService.UploadFile(file,folderName);
 
 			if (result.Code == 1)
 				return Ok(result);

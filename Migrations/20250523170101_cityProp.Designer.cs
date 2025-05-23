@@ -12,8 +12,8 @@ using context;
 namespace info_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250520142123_changeStatusColumn1")]
-    partial class changeStatusColumn1
+    [Migration("20250523170101_cityProp")]
+    partial class cityProp
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,10 @@ namespace info_backend.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Cv")
                         .IsRequired()
@@ -256,7 +260,6 @@ namespace info_backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Photo")
