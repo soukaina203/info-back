@@ -16,7 +16,7 @@ namespace Models
 		public virtual Role? Role { get; set; }
 		public string? RefreshToken { get; set; }
 		public DateTime? RefreshTokenExpiryTime { get; set; }
-		public VerificationStatus  Status { get; set; }
+		public VerificationStatus Status { get; set; }
 
 
 	}

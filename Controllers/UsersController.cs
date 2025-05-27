@@ -37,7 +37,7 @@ namespace Controllers
         {
             try
             {
-                var result = await _userService.Put(id,user);
+               var result = await _userService.Put(id,user);
                 return Ok(result);
             }
             catch (System.Exception ex)

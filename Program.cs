@@ -39,6 +39,8 @@ builder.Services.AddScoped<UserService>();
 
 var connectionString = Environment.GetEnvironmentVariable("DefaultConnection");
 
+
+
 builder.Services.AddDbContext<AppDbContext>(options =>
 options.UseNpgsql(connectionString));
 

@@ -45,6 +45,16 @@ namespace Controllers
 
 
 
+		[HttpPut]
+		[Route("{folder}/{oldFileName}")]
+		public async Task<IActionResult> PutFile(string folder, IFormFile filename , string oldFileName)
+		{
+			var result = await _uploadService.PutFile(folder, oldFileName,filename );
+
+			return Ok (result ) ;
+		}
+
+
 
 	}
 }

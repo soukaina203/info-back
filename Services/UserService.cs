@@ -56,59 +56,69 @@ namespace Services
 		// reason behind using ProfInscriptionDTO is that the user here contains the pwd too
 		// while in the ProfProfilDTO the user doesn't contain the password because we should not send back the password even if its hashed to the frontend
 
-
-
-		public async Task<PutUserResponseDTO> Put(int id, ProfInscriptionDTO user)
+		public async Task<PutUserResponseDTO> Put(int id, ProfInscriptionDTO dto)
 		{
-			var dbUser = await _context.Users
-				.AsNoTracking()
-				.Where(u => u.Id == id)
-				.Select(u => new { u.Password, u.IsAdmin })
-				.FirstOrDefaultAsync();
-
-			if (dbUser == null)
-			{
+			// Load user and profile together
+			var user = await _context.Users
+			.Where(u => u.Id == id)
+			.FirstOrDefaultAsync();
+			if (user == null)
 				return new PutUserResponseDTO { Code = 404, Message = "Utilisateur introuvable." };
-			}
-
-			if (!string.IsNullOrWhiteSpace(user.user.Password))
+			if (user.Email != dto.user.Email)
 			{
-				user.user.Password = _passwordHasher.HashPassword(user.user.Password);
-			}
-			else
-			{
-				user.user.Password = dbUser.Password;
-			}
-
-			user.user.IsAdmin = dbUser.IsAdmin;
-
-			_context.Entry(user.user).State = EntityState.Modified;
-
-			if (user.user.RoleId == 1 && user.profProfile != null)
-			{
-				_context.Entry(user.profProfile).State = EntityState.Modified;
-			}
-
-			try
-			{
-				await _context.SaveChangesAsync();
-
-	
-				return new PutUserResponseDTO
+		var emailExists = await _context.Users
+		.Where(u => u.Email == dto.user.Email)
+		.FirstOrDefaultAsync();
+		
+				if (emailExists != null)
 				{
-					Code = 200,
-					Message = "Success",
-					UserData = user.user ,
-					ProfData = user.profProfile != null ? user.profProfile:null
-					
-				};
+					return new PutUserResponseDTO { Code = -1, Message = "Email already exists" };
+				}
 			}
-			catch (DbUpdateConcurrencyException ex)
-			{
-				return new PutUserResponseDTO { Code = 500, Message = ex.Message };
-			}
-		}
 
+
+
+			// Update User fields
+			user.Email = dto.user.Email;
+			user.FirstName = dto.user.FirstName;
+			user.LastName = dto.user.LastName;
+			user.Telephone = dto.user.Telephone;
+			user.Photo = dto.user.Photo;
+
+			// Update ProfProfile fields
+			if (dto.profProfile != null && dto.user.RoleId==1)
+			{
+				var prof = await _context.ProfProfiles
+				.Where(p => p.UserId == id)
+				.FirstOrDefaultAsync();
+				if (prof != null)
+				{
+					prof.City = dto.profProfile.City;
+					prof.Services = dto.profProfile.Services;
+					prof.Specialities = dto.profProfile.Specialities;
+					prof.Niveaux = dto.profProfile.Niveaux;
+					prof.Methodes = dto.profProfile.Methodes;
+
+				}
+
+			}
+
+			// Save changes
+			var result = await _context.SaveChangesAsync();
+			return new PutUserResponseDTO
+
+			{
+
+				Code = 200,
+
+				Message = "Success",
+
+				UserData = dto.user,
+
+				ProfData = dto.profProfile
+
+			};
+		}
 
 
 	}

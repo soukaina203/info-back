@@ -1,6 +1,9 @@
+using System.Security.Permissions;
+using Azure;
 using context;
 using DTO;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Models;
 
@@ -15,7 +18,64 @@ namespace Services
 			_context = context;
 		}
 
-		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file , string folderName)
+
+
+		public async Task<ResponseDTO> PutFile(string folder, string? oldFileName, IFormFile filename)
+		{
+			// Validate input
+			if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(oldFileName))
+			{
+				return new ResponseDTO {Code = 403 , Message="Invalid"};
+			}
+
+			if (filename == null)
+			{
+				return new ResponseDTO {Code = 404 , Message="No file uploaded."};
+				
+			}
+
+			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folder, oldFileName);
+
+			if (!System.IO.File.Exists(filePath))
+			{
+				return new ResponseDTO {Code = 404 , Message="File path not found."+filePath};
+				
+			}
+
+			try
+			{
+		
+
+				// Upload the new file
+				var result = await UploadFile(filename, folder); // Use the folder parameter
+
+				// Check the result and construct the response
+				if (result != null)
+				{
+							// Delete the old file
+					System.IO.File.Delete(filePath);
+
+					return new ResponseDTO{Code = 200 ,  Message = result.Msg, File = result.FileName };
+				}
+
+				// Return a BadRequest if the upload fails
+					return new ResponseDTO{Code = 500 ,  Message = "File upload failed" };
+				
+			}
+			catch (Exception ex)
+			{
+					return new ResponseDTO{Code = 500 ,  Message = "Error processing file: " + ex.Message };
+				
+			}
+		}
+
+
+
+
+
+
+
+		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file, string folderName)
 		{
 			if (file == null || file.Length == 0)
 			{ // code -1 failure
@@ -27,7 +87,7 @@ namespace Services
 				};
 			}
 
-			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot",folderName);
+			var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", folderName);
 
 			if (!Directory.Exists(uploadsFolder))
 			{
