@@ -1,7 +1,7 @@
 using Models;
 namespace Models
 {
-    public class Reunion
+    public class Class
     {
         public int Id { get; set; }
         public string Title { get; set; }
