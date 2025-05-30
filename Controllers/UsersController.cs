@@ -7,7 +7,7 @@ namespace Controllers
 {
 	[ApiController]
 	[Route("api/[controller]/[action]")]
-	public class UsersController : ControllerBase
+	public class UsersController : Controller
 	{
 		private readonly UserService _userService;
 
@@ -17,34 +17,6 @@ namespace Controllers
 		}
 
 		// GET api/users/5
-		[HttpGet("{id}")]
-		public async Task<ActionResult<ProfInscriptionDTO>> GetById(int id)
-		{
-			try
-			{
-				var result = await _userService.GetById(id);
-				return Ok(result);
-			}
-			catch (System.Exception ex)
-			{
-				// Ici tu peux gérer les erreurs (NotFound, etc.)
-				return Ok(new { message = ex.Message });
-			}
-		}
 		
-		[HttpPut("{id}")]
-        public async Task<ActionResult<ProfInscriptionDTO>> Put(int id,ProfInscriptionDTO user )
-        {
-            try
-            {
-               var result = await _userService.Put(id,user);
-                return Ok(result);
-            }
-            catch (System.Exception ex)
-            {
-                // Ici tu peux gérer les erreurs (NotFound, etc.)
-                return Ok(new { message = ex.Message });
-            }
-        }
 	}
 }

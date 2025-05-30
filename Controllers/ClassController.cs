@@ -1,17 +1,17 @@
 using DTO;
 using Microsoft.AspNetCore.Mvc;
 using Services;
-
+using Models;
 namespace Controllers
 {
 	[ApiController]
 	[Route("api/[controller]/[action]")]
 
-	public class ClassController : ControllerBase
+	public class ClassController : SuperController<Class, ClassService> 
 	{
 		private readonly ClassService _classService;
 
-		public ClassController(ClassService classService)
+		public ClassController(ClassService classService) : base(classService)
 		{
 			_classService = classService;
 		}

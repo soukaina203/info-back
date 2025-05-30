@@ -28,12 +28,14 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication();
 
+builder.Services.AddScoped(typeof(SuperService<>));
 builder.Services.AddScoped<PasswordHashing>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<UploadService>();
 builder.Services.AddScoped<EmailService>();
-builder.Services.AddScoped(typeof(SuperService<>));
+builder.Services.AddScoped<ClassService>();
+builder.Services.AddScoped<RoleService>();
 
 builder.Services.AddScoped<UserService>();
 

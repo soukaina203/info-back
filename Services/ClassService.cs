@@ -21,10 +21,8 @@ namespace Services
 			if (classes!=null)
 			{
 				return new ResponseDTO { Code = 200, Message = "Success", Data = classes };
-				
 			}
 				return new ResponseDTO { Code = 200, Message = "Success" };
- 
 		}
 		
 	}

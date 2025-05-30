@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using context;
 using System;
-
+using Interfaces; 
+using DTO; 
 namespace Services
 {
-    public class SuperService<T> where T : class
+    public class SuperService<T> :  IService<T> where T : class
     {
         protected readonly AppDbContext _context;
 
@@ -15,13 +16,11 @@ namespace Services
             _context = context;
         }
 
-        public virtual async Task<(List<T> list, int count)> GetAll()
-        {
-            var list = await _context.Set<T>().ToListAsync();
-            int count = await _context.Set<T>().CountAsync();
-
-            return (list, count);
-        }
+    public virtual async Task<IEnumerable<T>> GetAll()
+    {
+        var list = await _context.Set<T>().ToListAsync();
+        return list;
+    }
 
         public virtual async Task<T> GetById(int id)
         {
@@ -58,7 +57,7 @@ namespace Services
             }
         }
 
-        public virtual async Task<object> Delete(int id)
+        public virtual async Task<ResponseDTO> Delete(int id)
         {
             var model = await _context.Set<T>().FindAsync(id);
             if (model != null)
@@ -67,14 +66,15 @@ namespace Services
                 try
                 {
                     await _context.SaveChangesAsync();
-                    return true;
+                    return new ResponseDTO { Code = 200, Message = "Deleted successfully" };
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    return new { Message = ex.Message };
+                    return new ResponseDTO { Code = 409, Message = ex.Message };
                 }
             }
-            return false;
+            return new ResponseDTO { Code = 404, Message = "Item not found" };
         }
+
     }
 }
