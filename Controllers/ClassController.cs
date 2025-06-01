@@ -2,8 +2,11 @@ using DTO;
 using Microsoft.AspNetCore.Mvc;
 using Services;
 using Models;
+using Microsoft.AspNetCore.Authorization;
+
 namespace Controllers
 {
+	[Authorize]
 	[ApiController]
 	[Route("api/[controller]/[action]")]
 

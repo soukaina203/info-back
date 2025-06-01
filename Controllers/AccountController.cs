@@ -10,6 +10,7 @@ using Enums;
 
 namespace Controllers
 {
+	[Authorize]
 	[ApiController]
 	[Route("api/[controller]/[action]")]
 	public class AccountController : ControllerBase

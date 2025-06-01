@@ -3,7 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Services;
 using DotNetEnv;
 using Utilities;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 Env.Load(); 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +28,22 @@ builder.Configuration.AddEnvironmentVariables();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
+	{
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = Environment.GetEnvironmentVariable("JWT_ISSUER"),
+			ValidAudience = Environment.GetEnvironmentVariable("JWT_AUDIENCE"),
+			IssuerSigningKey = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SECRET"))
+			)
+		};
+	});
 
 builder.Services.AddScoped(typeof(SuperService<>));
 builder.Services.AddScoped<PasswordHashing>();
@@ -60,8 +77,8 @@ if (app.Environment.IsDevelopment())
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 

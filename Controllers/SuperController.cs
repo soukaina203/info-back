@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Interfaces;
 using DTO;
+using Microsoft.AspNetCore.Authorization;
+
+[Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class SuperController<TDto, TService> : ControllerBase
