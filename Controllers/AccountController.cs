@@ -10,7 +10,6 @@ using Enums;
 
 namespace Controllers
 {
-	[Authorize]
 	[ApiController]
 	[Route("api/[controller]/[action]")]
 	public class AccountController : ControllerBase
@@ -43,17 +42,16 @@ namespace Controllers
 				{
 					HttpOnly = true,
 					Secure = true,
-					SameSite = SameSiteMode.Strict,
+					SameSite = SameSiteMode.None ,
 					Expires = DateTime.UtcNow.AddDays(30)
 				});
 
-				// On peut retourner sans le refreshToken dans le JSON (si tu veux le cacher côté frontend)
-				result.RefreshToken = null;
+		
 			}
 
 			return Ok(result);
 		}
-
+	[Authorize]
 
 		[HttpGet("{userId}")]
 		public async Task<IActionResult> ActiveAccount(int userId)
@@ -106,10 +104,11 @@ namespace Controllers
 		}
 		
 		
-		[HttpGet(	)]
+		[HttpGet()]
 		public async Task<IActionResult> Refresh()
 		{
 			var refreshToken = Request.Cookies["refreshToken"];
+			
 			if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
 
 			var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);

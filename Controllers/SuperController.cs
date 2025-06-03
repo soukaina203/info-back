@@ -5,7 +5,7 @@ using Interfaces;
 using DTO;
 using Microsoft.AspNetCore.Authorization;
 
-[Authorize]
+// [Authorize]
 [ApiController]
 [Route("api/[controller]/[action]")]
 public class SuperController<TDto, TService> : ControllerBase

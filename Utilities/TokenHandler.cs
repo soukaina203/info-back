@@ -16,9 +16,9 @@ namespace Utilities
 
         public JwtService()
         {
-            _key = Environment.GetEnvironmentVariable("Jwt__Key") ?? throw new ArgumentNullException("Jwt__Key");
-            _issuer = Environment.GetEnvironmentVariable("Jwt__Issuer") ?? throw new ArgumentNullException("Jwt__Issuer");
-            _audience = Environment.GetEnvironmentVariable("Jwt__Audience") ?? throw new ArgumentNullException("Jwt__Audience");
+            _key = Environment.GetEnvironmentVariable("JWT_SECRET") ?? throw new ArgumentNullException("JWT_SECRET");
+            _issuer = Environment.GetEnvironmentVariable("JWT_ISSUER") ?? throw new ArgumentNullException("JWT_ISSUER");
+            _audience = Environment.GetEnvironmentVariable("JWT_AUDIENCE") ?? throw new ArgumentNullException("JWT_AUDIENCE");
         }
 
         public string GenerateToken(string userId, string email)

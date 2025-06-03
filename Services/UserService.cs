@@ -6,7 +6,7 @@ using context;
 using DTO;
 namespace Services
 {
-	public class UserService : SuperService<ProfProfilDTO>
+	public class UserService : SuperService<User>
 	{
 		private readonly AppDbContext _context;
 		private readonly PasswordHashing _passwordHasher;
@@ -18,7 +18,7 @@ namespace Services
 		}
 
 		// For teachers and students
-		public override async Task<ProfProfilDTO> GetById(int id)
+		public  async Task<ProfProfilDTO> GetUserById(int id)
 		{
 			var user = await _context.Users.FindAsync(id);
 			if (user == null)
