@@ -35,7 +35,7 @@ namespace Services
 				Photo = user.Photo,
 				RoleId = user.RoleId
 			};
-			if (user.RoleId == 1)
+			if (user.RoleId == 1) 
 			{
 				var prof = await _context.ProfProfiles
 					.FirstOrDefaultAsync(p => p.UserId == id);

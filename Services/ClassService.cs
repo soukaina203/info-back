@@ -14,6 +14,15 @@ namespace Services
 			_context = context;
 			
 		}
+		
+		public override async Task<object> GetAll()
+		{
+ 		   var data = await _context.Classes.Include(c => c.User).ToListAsync();
+			
+			return new {Data = data};
+			
+		}
+		
 
 		public async Task<ResponseDTO> GetClassesByProfId(int userId)
 		{
