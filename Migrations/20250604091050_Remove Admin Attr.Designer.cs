@@ -12,8 +12,8 @@ using context;
 namespace info_backend.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250529110244_chnagement de nom de class reunion")]
-    partial class chnagementdenomdeclassreunion
+    [Migration("20250604091050_Remove Admin Attr")]
+    partial class RemoveAdminAttr
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -251,9 +251,6 @@ namespace info_backend.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<bool?>("IsAdmin")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("LastName")
                         .IsRequired()

@@ -93,7 +93,6 @@ namespace Services
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{
-				user.IsAdmin = false;
 				// the user regitration should be always pending in the status until the email is send 
 				// then the status goes to false until the email is verified 
 				// then to true when the user verify the email

@@ -23,7 +23,7 @@ namespace Services
 			return new {Data = data};
 		}
 
-		public virtual async Task<T> GetById(int id)
+		public virtual async Task<object> GetById(int id)
 		{
 			return await _context.Set<T>().FindAsync(id);
 		}

@@ -33,5 +33,29 @@ namespace Controllers
 				return Ok(new { message = ex.Message });
 			}
 		}
+		
+		
+		
+		
+		[HttpGet("")]
+		[AllowAnonymous]
+		public async Task<ActionResult> GetClassesByProfId(	
+			[FromQuery] string? date,
+			[FromQuery] string? title,
+			[FromQuery] string? prof)
+		{
+			try
+			{
+				var result = await _classService.SearchReunions(date , title , prof);
+				return Ok(result);
+			}
+			catch (System.Exception ex)
+			{
+				// Ici tu peux gérer les erreurs (NotFound, etc.)
+				return Ok(new { message = ex.Message });
+			}
+		}
+		
+		
 	}
 }

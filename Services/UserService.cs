@@ -33,7 +33,8 @@ namespace Services
 				Telephone = user.Telephone,
 				Email = user.Email,
 				Photo = user.Photo,
-				RoleId = user.RoleId
+				RoleId = user.RoleId,
+				
 			};
 			if (user.RoleId == 1) 
 			{

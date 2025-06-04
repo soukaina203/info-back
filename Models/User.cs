@@ -11,7 +11,6 @@ namespace Models
 		public required string Email { get; set; }
 		public required string? Password { get; set; }
 		public string? Photo { get; set; }
-		public bool? IsAdmin { get; set; }
 		public int RoleId { get; set; }
 		public virtual Role? Role { get; set; }
 		public string? RefreshToken { get; set; }
