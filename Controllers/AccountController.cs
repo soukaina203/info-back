@@ -51,7 +51,33 @@ namespace Controllers
 
 			return Ok(result);
 		}
-	[Authorize]
+		
+		
+		[HttpPost]
+		public async Task<IActionResult> VerifyRegistrationToken( VerifyRegistrationTokenDTO userData )
+		{
+			var result = await _accountService.VerifyRegistrationToken(userData);
+
+			return Ok(result);
+		}
+		
+		[HttpPost]
+		public async Task<IActionResult> ResetPassword(ResetPwdDTO userData )
+		{
+			var result = await _accountService.ResetPassword(userData);
+
+			return Ok(result);
+		}
+		
+		
+		[HttpPost]
+		public async Task<IActionResult> ForgetPassword(ForgetPwdDTO userData )
+		{
+			var result = await _accountService.ForgetPassword(userData);
+
+			return Ok(result);
+		}
+		
 
 		[HttpGet("{userId}")]
 		public async Task<IActionResult> ActiveAccount(int userId)
@@ -75,8 +101,6 @@ namespace Controllers
 		public async Task<IActionResult> RegisterStudent(User user)
 		{
 			var result = await _accountService.RegisterUser(user);
-
-	
 				return Ok(result);
 
 		}

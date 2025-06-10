@@ -19,41 +19,42 @@ namespace Services
 
 
 
-	public async Task<EmailSendResult> SendVerificationEmailAsync(string toEmail, string Name, string Token)
-{
-	try
+	public async Task<EmailSendResult> SendVerificationEmailAsync(string toEmail, string Name, string Token ,string templateName)
 	{
-		string html = await System.IO.File.ReadAllTextAsync("Templates/Emails/EmailVerification.html");
-		html = html
-			.Replace("{{Name}}", Name)
-			.Replace("{{token}}", Token);
+		try
+		{
+			string path = Path.Combine("Templates", "Emails", $"{templateName}.html");
+			string html = await System.IO.File.ReadAllTextAsync(path);	
+			html = html
+				.Replace("{{Name}}", Name)
+				.Replace("{{token}}", Token);
 
-		var email = new MimeMessage();
+			var email = new MimeMessage();
 
-		// Ajout de l'expéditeur
-		email.From.Add(new MailboxAddress(SenderName, SenderEmail));
+			// Ajout de l'expéditeur
+			email.From.Add(new MailboxAddress(SenderName, SenderEmail));
 
-		// Destinataire
-		email.To.Add(MailboxAddress.Parse(toEmail));
+			// Destinataire
+			email.To.Add(MailboxAddress.Parse(toEmail));
 
-		// Sujet et corps
-		email.Body = new TextPart("html") { Text = html };
+			// Sujet et corps
+			email.Body = new TextPart("html") { Text = html };
 
-		using var smtp = new SmtpClient();
-		await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
-		await smtp.AuthenticateAsync(smtpUser, smtpPass);
-		
-		await smtp.SendAsync(email);
-		await smtp.DisconnectAsync(true);
-		return new EmailSendResult {Success = true  };
-		
+			using var smtp = new SmtpClient();
+			await smtp.ConnectAsync(smtpServer, smtpPort, SecureSocketOptions.StartTls);
+			await smtp.AuthenticateAsync(smtpUser, smtpPass);
+			
+			await smtp.SendAsync(email);
+			await smtp.DisconnectAsync(true);
+			return new EmailSendResult {Success = true  };
+			
+		}
+		catch (Exception ex)
+		{
+				return new EmailSendResult {Success = false , ErrorMessage=ex.Message   };
+
+		}
 	}
-	catch (Exception ex)
-	{
-			return new EmailSendResult {Success = false , ErrorMessage=ex.Message   };
-
-	}
-}
 
 
 

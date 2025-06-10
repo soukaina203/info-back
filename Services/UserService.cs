@@ -16,6 +16,15 @@ namespace Services
 			_context = context;
 			_passwordHasher = passwordHasher;
 		}
+		
+		
+		
+		public override   async Task<object>  GetAll()
+		{
+			var data = await _context.Users.Include(u=>u.Role).ToListAsync();
+			
+			return new {Data = data};
+		}
 
 		// For teachers and students
 		public  async Task<ProfProfilDTO> GetUserById(int id)

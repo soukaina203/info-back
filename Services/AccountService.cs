@@ -5,6 +5,8 @@ using DTO;
 using Microsoft.AspNetCore.Mvc;
 using Utilities;
 using Enums;
+using System.Security.Claims;
+
 namespace Services
 {
 
@@ -22,6 +24,118 @@ namespace Services
 			_jwtService = jwtService;
 			_emailService = emailService;
 		}
+		
+		public async Task<ResponseDTO> VerifyRegistrationToken(VerifyRegistrationTokenDTO userData)
+		{
+			// 1. Validate token
+			var principal = _jwtService.ValidateToken(userData.Token);
+			if (principal == null)
+			{
+				return new ResponseDTO { Success = false, Message = "Invalid token" };
+			}
+
+			// 2. Extract and validate claims
+			var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+
+			if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(email))
+			{
+				return new ResponseDTO { Success = false, Message = "Token missing required claims" };
+			}
+
+			// 3. Parse user ID safely
+			if (!int.TryParse(userId, out int globalUserIdInt))
+			{
+				return new ResponseDTO { Success = false, Message = "Invalid user ID format in token" };
+			}
+
+			// 4. Verify token belongs to the current user
+			if (userData.Id != globalUserIdInt)
+			{
+				return new ResponseDTO { Success = false, Message = "This token does not belong to the current user" };
+			}
+
+			return new ResponseDTO { Success = true };
+		}
+		
+		
+		
+		public async Task<ResponseDTO> ResetPassword(ResetPwdDTO userData)
+		{
+			
+			// 1. Validate the token
+			var principal = _jwtService.ValidateToken(userData.Token);
+			if (principal == null)
+			{
+				return new ResponseDTO { Success = false, Message = "Invalid token" };
+			}
+
+			// 2. Extract claims
+			var userId = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+			var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+
+			if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(email))
+			{
+				return new ResponseDTO { Success = false, Message = "Token missing required claims" };
+			}
+
+		
+			try
+			{
+			// Parse the userId first
+			if (!int.TryParse(userId, out int parsedUserId))
+			{
+				return new ResponseDTO { Success = false, Message = "Invalid user ID format" };
+			}
+
+			// Then use it in the query with proper lambda syntax
+			var user = await _context.Users
+				.FirstOrDefaultAsync(u => u.Id == parsedUserId); // Correct lambda expression		
+				if (user==null)
+				
+				{
+					return new ResponseDTO { Success = false, Message = "User not found" };
+				}
+
+				// Reset password
+				var result = await SetNewPassword(parsedUserId, userData.Password);
+
+				if (result.Success!=true)
+				{
+					return new ResponseDTO 
+					{ 
+						Success = false, 
+						Message = "Password reset failed "
+					};
+				}
+
+				return new ResponseDTO { Success = true, Message = "Password reset successfully" };
+			}
+			catch (Exception ex)
+			{
+				return new ResponseDTO { Success = false, Message = $"Error: {ex.Message}" };
+			}
+		}
+
+
+
+		public async Task<ResponseDTO> SetNewPassword(int userId , string password)
+
+		{
+			var user =await _context.Users.Where(u=>u.Id==userId).FirstOrDefaultAsync();
+			
+			if (user==null)
+			{
+				return new ResponseDTO { Success = false, Message = "user not found" };
+			}
+  			  user.Password = _passwordHasher.HashPassword(password);
+			_context.Entry(user).State = EntityState.Modified;
+			await _context.SaveChangesAsync();
+				return new ResponseDTO { Success = true, Message = "pqssword successfully changed" };
+				
+		}
+
+
 
 		public async Task<loginResponse> Login(LoginDTO model)
 		{
@@ -83,6 +197,63 @@ namespace Services
 		}
 
 
+
+		public async Task<ResponseDTO> ForgetPassword(ForgetPwdDTO userData)
+		{
+			try
+			{
+				
+				var IsEmailExists= await _context.Users.Where(u=>u.Email==userData.Email).FirstOrDefaultAsync();
+				// Générer le token
+				if (IsEmailExists==null)
+				{
+						return new ResponseDTO  {
+						Code = 404,
+						Message = "L'e-mail n'existe pas"
+					};
+				}
+				var token = _jwtService.GenerateToken(userData.Id.ToString(), userData.Email);
+
+				// Envoyer l'e-mail
+				var emailSendingResult = await _emailService.SendVerificationEmailAsync(
+					userData.Email,
+					userData.Name,
+					token,
+					"ResetPwdEmail"
+				);
+
+				// Vérifier le résultat de l'envoi
+				if (emailSendingResult.Success)
+				{
+				
+					return new ResponseDTO  {
+						Code = 200,
+						Message = "L'e-mail de réinitialisation a été envoyé avec succès."
+					};
+				}
+				else
+				{
+				
+					return new ResponseDTO {
+						Code = 500,
+						Message = "Échec de l'envoi de l'e-mail de réinitialisation."
+					};
+				}
+			}
+			catch (Exception ex)
+			{
+		
+				return new ResponseDTO {
+					Code = 500,
+					Message = $"Une erreur est survenue : {ex.Message}"
+				};
+			}
+
+		}
+
+
+
+
 		public async Task<RegistrationResponse<string>> RegisterUser(User user)
 		{
 			var emailExiste = await _context.Users.FirstOrDefaultAsync(e => e.Email == user.Email);
@@ -109,30 +280,20 @@ namespace Services
 
 				var name = user.FirstName + " " + user.LastName;
 
-				var emailSendingResult = await _emailService.SendVerificationEmailAsync(user.Email, name, token); // Done 
+				var emailSendingResult = await _emailService.SendVerificationEmailAsync(user.Email, name, token,"EmailVerification"); // Done 
 				if (emailSendingResult.Success != true)
 				{
 					registrerdUser.Status = VerificationStatus.Failed; // before the mail sending
 					_context.Entry(registrerdUser).State = EntityState.Modified;
 					await _context.SaveChangesAsync();
 
-					var userData = new UserDto
-					{
-						Id = user.Id,
-						LastName = user.LastName,
-						FirstName = user.FirstName,
-						Email = user.Email,
-						Photo = user.Photo,
-						Telephone = user.Telephone,
-						RoleId = user.RoleId
-					};
+					
 					return new RegistrationResponse<string>
 					{
 						Code = 1,
 						Message = "Email not sent",
 						Token = token,
 						UserId = user.Id,
-						UserData = userData,
 						IsEmailSended = false,
 						errors = emailSendingResult.ErrorMessage
 					};
@@ -142,8 +303,17 @@ namespace Services
 				_context.Entry(registrerdUser).State = EntityState.Modified;
 				await _context.SaveChangesAsync();
 
-
-				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token, UserId = user.Id, IsEmailSended = true, User = user };
+				var userData = new UserDto
+					{
+						Id = user.Id,
+						LastName = user.LastName,
+						FirstName = user.FirstName,
+						Email = user.Email,
+						Photo = user.Photo,
+						Telephone = user.Telephone,
+						RoleId = user.RoleId
+					};
+				return new RegistrationResponse<string> { Code = 1, Message = "Register Successful", Token = token,UserData = userData ,UserId = user.Id, IsEmailSended = true, User = user };
 			}
 			catch (DbUpdateConcurrencyException ex)
 
