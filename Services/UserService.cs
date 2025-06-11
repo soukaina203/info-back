@@ -29,7 +29,10 @@ namespace Services
 		// For teachers and students
 		public  async Task<ProfProfilDTO> GetUserById(int id)
 		{
-			var user = await _context.Users.FindAsync(id);
+			var user = await _context.Users
+				.Include(u => u.Role)
+				.FirstOrDefaultAsync(u => u.Id == id);
+				
 			if (user == null)
 			{
 				throw new Exception($"User with ID {id} not found.");
@@ -43,7 +46,7 @@ namespace Services
 				Email = user.Email,
 				Photo = user.Photo,
 				RoleId = user.RoleId,
-				
+				Role = user.Role
 			};
 			if (user.RoleId == 1) 
 			{

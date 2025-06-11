@@ -1,3 +1,4 @@
+using Models;
 namespace DTO
 {
 	public class UserDto
@@ -10,6 +11,7 @@ namespace DTO
 		public required string Email { get; set; }
 		public string? Photo { get; set; }
 		public int? RoleId { get; set; }
+		public Role? Role { get; set; }
 	
 	
 
