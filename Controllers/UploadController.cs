@@ -31,7 +31,7 @@ namespace Controllers
 		}
 
 
-
+		[Authorize]
 		[HttpGet("{folder}/{filename}")]
 		public async Task<IActionResult> DownloadFile(string folder, string filename)
 		{
@@ -46,7 +46,7 @@ namespace Controllers
 		}
 
 
-
+		[Authorize]
 		[HttpPut]
 		[Route("{folder}/{oldFileName}")]
 		public async Task<IActionResult> PutFile(string folder, IFormFile filename , string oldFileName)

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Models;
 namespace Controllers
 {
-	// [Authorize]
+	[Authorize]
 	[ApiController]
 	[Route("api/[controller]/[action]")]
 	public class UsersController : SuperController<User, UserService>  

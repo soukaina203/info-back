@@ -116,7 +116,6 @@ namespace Controllers
 		}
 		
 
-
 		[HttpGet]
 		public async Task<IActionResult> GetServicesData()
 		{
@@ -138,7 +137,7 @@ namespace Controllers
 			var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
 			if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-				return Unauthorized();
+				return Unauthorized(); 
 
 			var newAccessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
 
