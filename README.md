@@ -34,23 +34,19 @@ Modifier le fichier appsettings.json :
 ou vous definissez ces variables : 
 # .env
 
-# for database credentials
+## for database credentials
 DefaultConnection="Server=localhost;Port=5432;Database=infoAcademie;Username=postgres;Password=pwd"
 
-# for JWT credentials
+## JWT credentials
 
 JWT_ISSUER=https://app.com
 JWT_AUDIENCE=https://app.com
 JWT_SECRET=codeSecret=
 
-# for CORS
+## CORS
 AllowedOrigins=http://localhost:4200
 
-Serveur=smtp-relay.brevo.com
-Port=587
-Identifiant=8cea6e001@smtp-brevo.com
-Pwd=hqGnEULv9PaCWI07
-Email=soukainamourabit9@gmail.com
+
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
 SenderName=Info-academie Support
