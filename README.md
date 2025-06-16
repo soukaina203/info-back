@@ -23,6 +23,10 @@ API développée avec **ASP.NET Core (.NET 7)** pour servir de backend à l'appl
 git clone https://github.com/soukaina203/info-back.git
 cd info-back
 ```
+**Installation des dependances**
+```bash
+dotnet restore
+```
 ## Configurer la base de données :
 Modifier le fichier appsettings.json :
 ```bash
