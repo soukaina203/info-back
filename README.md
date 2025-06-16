@@ -122,7 +122,7 @@ Fichiers principaux :
 
 **info-back.sln** : Fichier de solution Visual Studio
 
-Choix technologiques
+## Choix technologiques
 **ASP.NET Core (.NET 7)** : Framework backend moderne, robuste et performant
 
 **Entity Framework Core** : ORM pour gérer les entités et la base de données
