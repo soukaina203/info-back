@@ -69,7 +69,7 @@ namespace Services
 		// reason behind using ProfInscriptionDTO is that the user here contains the pwd too
 		// while in the ProfProfilDTO the user doesn't contain the password because we should not send back the password even if its hashed to the frontend
 
-		public async Task<PutUserResponseDTO> Put(int id, ProfInscriptionDTO dto)
+		public  async Task<PutUserResponseDTO> PutUser(int id, ProfInscriptionDTO dto)
 		{
 			// Load user and profile together
 			var user = await _context.Users
@@ -77,16 +77,23 @@ namespace Services
 			.FirstOrDefaultAsync();
 			if (user == null)
 				return new PutUserResponseDTO { Code = 404, Message = "Utilisateur introuvable." };
+				
+				
 			if (user.Email != dto.user.Email)
 			{
-		var emailExists = await _context.Users
-		.Where(u => u.Email == dto.user.Email)
-		.FirstOrDefaultAsync();
+			var emailExists = await _context.Users
+			.Where(u => u.Email == dto.user.Email)
+			.FirstOrDefaultAsync();
 		
 				if (emailExists != null)
 				{
 					return new PutUserResponseDTO { Code = -1, Message = "Email already exists" };
 				}
+			}
+			
+			if ( dto.user.Password!=null  &&!_passwordHasher.CheckPassword(dto.user.Password, user.Password))
+			{
+				user.Password=_passwordHasher.HashPassword(dto.user.Password);
 			}
 
 

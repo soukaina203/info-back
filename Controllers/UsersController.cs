@@ -20,12 +20,20 @@ namespace Controllers
 
 		// GET api/users/5
 		[HttpGet("{id}")]
-		
 		public  async Task<IActionResult> GetUserById(int id)
 		{
 			var user=await	 _userService.GetUserById(id);
 			return Ok(user);
 			
 		}
+		
+	[HttpPut("{id}")]
+		public  async Task<IActionResult> PutUser(int id, ProfInscriptionDTO model)
+		{
+			var user=await	 _userService.PutUser(id,model);
+			return Ok(user);
+			
+		}
+		
 	}
 }
