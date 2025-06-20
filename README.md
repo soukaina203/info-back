@@ -80,7 +80,6 @@ Dans le fichier `.env`, remplacez la ligne suivante par vos propres identifiants
 
 ```
 env
-CopierModifier
 DefaultConnection="Server=localhost;Port=5432;Database=infoAcademie;Username=postgres;Password=maRaNV"
 
 ```
