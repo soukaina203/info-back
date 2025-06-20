@@ -72,6 +72,57 @@ dotnet watch run
 Accès à l’interface Swagger :
 http://localhost:5000/swagger
 
+### Configuration de la base de données
+
+Concernant la base de données, le projet utilise PostgreSQL , mais  vous pouvez utiliser n’importe quel SGBD relationnel.
+
+Dans le fichier `.env`, remplacez la ligne suivante par vos propres identifiants de connexion :
+
+```
+env
+CopierModifier
+DefaultConnection="Server=localhost;Port=5432;Database=infoAcademie;Username=postgres;Password=maRaNV"
+
+```
+
+---
+
+### Génération des migrations
+
+Une fois la configuration terminée, il faut générer les fichiers de migration avec la commande suivante :
+
+```bash
+
+dotnet ef migrations add InitialCreate
+```
+
+Cela va créer un dossier `Migrations/` avec les fichiers nécessaires pour construire la base de données.
+
+---
+
+### Génération du script SQL
+
+Pour obtenir un script SQL complet à exécuter dans votre SGBD, utilisez la commande suivante :
+
+```bash
+dotnet ef migrations script -o Migrations/sample.sql
+```
+
+Vous trouverez ensuite le fichier `sample.sql` dans le dossier `Migrations`. Il vous suffit de copier-coller ce code dans votre outil de gestion de base de données (comme pgAdmin, etc.) et d’exécuter les requêtes.
+
+---
+
+### Lancer l'application
+
+Une fois la base de données prête, tout est en place pour tester l’application.
+
+Dans le dossier backend, lancez le projet avec la commande suivante :
+
+```bash
+dotnet watch run
+```
+
+Et voilà, l’API est maintenant opérationnelle
 
 ## Fonctionnalités principales
 - **Authentification avec JWT**
