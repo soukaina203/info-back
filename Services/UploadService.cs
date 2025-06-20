@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.StaticFiles;
 using Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
@@ -48,7 +49,14 @@ namespace Services
 
 				// Upload the new file
 				var result = await UploadFile(filename, folder); // Use the folder parameter
+				var user = await _context.ProfProfiles.Where(e=> e.Cv==oldFileName).FirstOrDefaultAsync();
+				if (user!=null)
+				{
+					user.Cv = result.FileName;
 
+					_context.Entry(user).State = EntityState.Modified;
+					await _context.SaveChangesAsync();
+				}
 				// Check the result and construct the response
 				if (result != null)
 				{

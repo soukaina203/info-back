@@ -52,7 +52,7 @@ namespace Services
 			// 4. Verify token belongs to the current user
 			if (userData.Id != globalUserIdInt)
 			{
-				return new ResponseDTO { Success = false, Message = "This token does not belong to the current user" };
+				return new ResponseDTO { Success = false, Message = $"This token does not belong to the current user : {globalUserIdInt} =={userData.Id} " };
 			}
 
 			return new ResponseDTO { Success = true };
@@ -332,9 +332,10 @@ namespace Services
 		public async Task<RegistrationResponse<string>> RegisterTeacher(ProfInscriptionDTO user)
 		{
 			var userRegistrationResult = await RegisterUser(user.user);
-			if (userRegistrationResult.Code != 1 || userRegistrationResult.UserId == 0)
+			//|| userRegistrationResult.UserId == 0
+			if (userRegistrationResult.Code != 1 && userRegistrationResult.IsEmailSended==true )
 			{
-				return new RegistrationResponse<string> { Code = 1, Message = "Something went wrong in RegisterUser" };
+				return new RegistrationResponse<string> { Code = userRegistrationResult.Code,IsEmailSended=userRegistrationResult.IsEmailSended,  Message = "Something went wrong in RegisterUser" };
 			}
 			user.profProfile.UserId = userRegistrationResult.UserId;
 			var registeredUser = await _context.Users.FindAsync(userRegistrationResult.UserId);
@@ -353,7 +354,9 @@ namespace Services
 					Code = 1,
 					Message = "Teacher registered successfully",
 					Token = userRegistrationResult.Token,
-					UserId = userRegistrationResult.UserId
+					UserId = userRegistrationResult.UserId,
+					IsEmailSended = userRegistrationResult.IsEmailSended,
+					
 				};
 			}
 			catch (DbUpdateException ex)

@@ -27,7 +27,7 @@ namespace Controllers
 			
 		}
 		
-	[HttpPut("{id}")]
+		[HttpPut("{id}")]
 		public  async Task<IActionResult> PutUser(int id, ProfInscriptionDTO model)
 		{
 			var user=await	 _userService.PutUser(id,model);
@@ -35,5 +35,15 @@ namespace Controllers
 			
 		}
 		
+		 [HttpGet("")]
+		 public async Task<IActionResult> SearchUsers([FromQuery] string nom, [FromQuery] string prenom, [FromQuery] string email, [FromQuery] int roleId)
+			{
+				var result = await _userService.SearchUsers(nom, prenom, email, roleId);
+
+				return Ok(new
+				{
+					query = new { result }
+				});
+			}
 	}
 }

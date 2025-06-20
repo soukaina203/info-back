@@ -141,6 +141,64 @@ namespace Services
 		}
 
 
+public async Task<object> SearchUsers(string nom, string prenom, string email, int roleId)
+{
+    var query = _context.Users
+        .Include(u => u.Role)
+        .AsQueryable();
+
+    // Filter by LastName (nom)
+    if (nom != "null" && !string.IsNullOrEmpty(nom))
+    {
+        query = query.Where(u => u.LastName.ToLower().Contains(nom.Trim().ToLower()));
+    }
+
+    // Filter by FirstName (prenom)
+    if (prenom != "null" && !string.IsNullOrEmpty(prenom))
+    {
+        query = query.Where(u => u.FirstName.ToLower().Contains(prenom.Trim().ToLower()));
+    }
+
+    // Filter by Email
+    if (email != "null" && !string.IsNullOrEmpty(email))
+    {
+        query = query.Where(u => u.Email.ToLower().Contains(email.Trim().ToLower()));
+    }
+
+    // Filter by RoleId (if > 0)
+    if (roleId > 0)
+    {
+        query = query.Where(u => u.RoleId == roleId);
+    }
+
+    var result = await query
+        .Select(u => new UserSearchDTO
+        {
+            Id = u.Id,
+            LastName = u.LastName,
+            FirstName = u.FirstName,
+            Email = u.Email,
+            RoleId = u.RoleId,
+            RoleName = u.Role != null ? u.Role.Name : string.Empty
+        })
+        .ToListAsync();
+
+    return new
+    {
+        query = new
+        {
+            result
+        },
+        filters = new
+        {
+            nom,
+            prenom,
+            email,
+            roleId
+        }
+    };
+}
+
 	}
 
 
