@@ -26,7 +26,6 @@ namespace Services
 			return new {Data = data};
 		}
 
-		// For teachers and students
 		public  async Task<ProfProfilDTO> GetUserById(int id)
 		{
 			var user = await _context.Users
@@ -66,12 +65,9 @@ namespace Services
 			}
 		}
 
-		// reason behind using ProfInscriptionDTO is that the user here contains the pwd too
-		// while in the ProfProfilDTO the user doesn't contain the password because we should not send back the password even if its hashed to the frontend
 
 		public  async Task<PutUserResponseDTO> PutUser(int id, ProfInscriptionDTO dto)
 		{
-			// Load user and profile together
 			var user = await _context.Users
 			.Where(u => u.Id == id)
 			.FirstOrDefaultAsync();
@@ -98,14 +94,12 @@ namespace Services
 
 
 
-			// Update User fields
 			user.Email = dto.user.Email;
 			user.FirstName = dto.user.FirstName;
 			user.LastName = dto.user.LastName;
 			user.Telephone = dto.user.Telephone;
 			user.Photo = dto.user.Photo;
 
-			// Update ProfProfile fields
 			if (dto.profProfile != null && dto.user.RoleId==1)
 			{
 				var prof = await _context.ProfProfiles
@@ -123,7 +117,6 @@ namespace Services
 
 			}
 
-			// Save changes
 			var result = await _context.SaveChangesAsync();
 			return new PutUserResponseDTO
 
@@ -141,63 +134,59 @@ namespace Services
 		}
 
 
-public async Task<object> SearchUsers(string nom, string prenom, string email, int roleId)
-{
-    var query = _context.Users
-        .Include(u => u.Role)
-        .AsQueryable();
+		public async Task<object> SearchUsers(string nom, string prenom, string email, int roleId)
+		{
+			var query = _context.Users
+				.Include(u => u.Role)
+				.AsQueryable();
 
-    // Filter by LastName (nom)
-    if (nom != "null" && !string.IsNullOrEmpty(nom))
-    {
-        query = query.Where(u => u.LastName.ToLower().Contains(nom.Trim().ToLower()));
-    }
+			if (nom != "null" && !string.IsNullOrEmpty(nom))
+			{
+				query = query.Where(u => u.LastName.ToLower().Contains(nom.Trim().ToLower()));
+			}
 
-    // Filter by FirstName (prenom)
-    if (prenom != "null" && !string.IsNullOrEmpty(prenom))
-    {
-        query = query.Where(u => u.FirstName.ToLower().Contains(prenom.Trim().ToLower()));
-    }
+			if (prenom != "null" && !string.IsNullOrEmpty(prenom))
+			{
+				query = query.Where(u => u.FirstName.ToLower().Contains(prenom.Trim().ToLower()));
+			}
 
-    // Filter by Email
-    if (email != "null" && !string.IsNullOrEmpty(email))
-    {
-        query = query.Where(u => u.Email.ToLower().Contains(email.Trim().ToLower()));
-    }
+			if (email != "null" && !string.IsNullOrEmpty(email))
+			{
+				query = query.Where(u => u.Email.ToLower().Contains(email.Trim().ToLower()));
+			}
 
-    // Filter by RoleId (if > 0)
-    if (roleId > 0)
-    {
-        query = query.Where(u => u.RoleId == roleId);
-    }
+			if (roleId > 0)
+			{
+				query = query.Where(u => u.RoleId == roleId);
+			}
 
-    var result = await query
-        .Select(u => new UserSearchDTO
-        {
-            Id = u.Id,
-            LastName = u.LastName,
-            FirstName = u.FirstName,
-            Email = u.Email,
-            RoleId = u.RoleId,
-            RoleName = u.Role != null ? u.Role.Name : string.Empty
-        })
-        .ToListAsync();
+			var result = await query
+				.Select(u => new UserSearchDTO
+				{
+					Id = u.Id,
+					LastName = u.LastName,
+					FirstName = u.FirstName,
+					Email = u.Email,
+					RoleId = u.RoleId,
+					RoleName = u.Role != null ? u.Role.Name : string.Empty
+				})
+				.ToListAsync();
 
-    return new
-    {
-        query = new
-        {
-            result
-        },
-        filters = new
-        {
-            nom,
-            prenom,
-            email,
-            roleId
-        }
-    };
-}
+			return new
+			{
+				query = new
+				{
+					result
+				},
+				filters = new
+				{
+					nom,
+					prenom,
+					email,
+					roleId
+				}
+			};
+		}
 
 	}
 

@@ -29,7 +29,6 @@ namespace Controllers
 			}
 			catch (System.Exception ex)
 			{
-				// Ici tu peux gérer les erreurs (NotFound, etc.)
 				return Ok(new { message = ex.Message });
 			}
 		}
@@ -52,15 +51,10 @@ namespace Controllers
 			}
 			catch (System.Exception ex)
 			{
-				// Ici tu peux gérer les erreurs (NotFound, etc.)
 				return Ok(new { message = ex.Message });
 			}
-			
-			
-			
 		
 		}
-		
 		
 		[HttpGet("")]
 		[AllowAnonymous]
@@ -76,7 +70,6 @@ namespace Controllers
 			}
 			catch (System.Exception ex)
 			{
-				// Ici tu peux gérer les erreurs (NotFound, etc.)
 				return Ok(new { message = ex.Message });
 			}
 		}

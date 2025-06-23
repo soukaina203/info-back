@@ -8,7 +8,6 @@ namespace Services
 {
 	public class EmailService
 	{
-		// Récupération du serveur SMTP, de l'identifiant et du mot de passe
 		private readonly string smtpServer = Environment.GetEnvironmentVariable("SMTP_HOST");
 		private readonly string smtpUser = Environment.GetEnvironmentVariable("SMTP_USER");
 		private readonly string smtpPass = Environment.GetEnvironmentVariable("SMTP_PASS");
@@ -31,13 +30,10 @@ namespace Services
 
 			var email = new MimeMessage();
 
-			// Ajout de l'expéditeur
 			email.From.Add(new MailboxAddress(SenderName, SenderEmail));
 
-			// Destinataire
 			email.To.Add(MailboxAddress.Parse(toEmail));
 
-			// Sujet et corps
 			email.Body = new TextPart("html") { Text = html };
 
 			using var smtp = new SmtpClient();

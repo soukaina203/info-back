@@ -90,7 +90,7 @@ namespace Services
 
 			// Then use it in the query with proper lambda syntax
 			var user = await _context.Users
-				.FirstOrDefaultAsync(u => u.Id == parsedUserId); // Correct lambda expression		
+				.FirstOrDefaultAsync(u => u.Id == parsedUserId); 	
 				if (user==null)
 				
 				{
@@ -204,7 +204,6 @@ namespace Services
 			{
 				
 				var emailUser= await _context.Users.Where(u=>u.Email==email).FirstOrDefaultAsync();
-				// Générer le token
 				if (emailUser==null)
 				{
 						return new ResponseDTO  {
@@ -214,7 +213,6 @@ namespace Services
 				}
 				var token = _jwtService.GenerateToken(emailUser.Id.ToString(), emailUser.Email);
 
-				// Envoyer l'e-mail
 				var emailSendingResult = await _emailService.SendVerificationEmailAsync(
 					emailUser.Email,
 					emailUser.FirstName,
@@ -222,7 +220,6 @@ namespace Services
 					"ResetPwdEmail"
 				);
 
-				// Vérifier le résultat de l'envoi
 				if (emailSendingResult.Success)
 				{
 				
@@ -264,26 +261,24 @@ namespace Services
 			user.Password = _passwordHasher.HashPassword(user.Password);
 			try
 			{
-				// the user regitration should be always pending in the status until the email is send 
-				// then the status goes to false until the email is verified 
-				// then to true when the user verify the email
-				user.Status = VerificationStatus.Pending; // before the mail sending
+				
+				user.Status = VerificationStatus.Pending; 
 				await _context.Users.AddAsync(user);
 				await _context.SaveChangesAsync();
 
-				var registrerdUser = await _context.Users.Where(u => u.Email == user.Email).FirstOrDefaultAsync(); // l utilisateur doit etre deja enregistre dans la base de donnees
+				var registrerdUser = await _context.Users.Where(u => u.Email == user.Email).FirstOrDefaultAsync(); 
 				if (registrerdUser == null)
 				{
 					return new RegistrationResponse<string> { Code = -4, Message = "failed to register the user " };
 				}
-				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email); // on doit utiliser l'id car il est inchangable
+				var token = _jwtService.GenerateToken(registrerdUser.Id.ToString(), user.Email);
 
 				var name = user.FirstName + " " + user.LastName;
 
-				var emailSendingResult = await _emailService.SendVerificationEmailAsync(user.Email, name, token,"EmailVerification"); // Done 
+				var emailSendingResult = await _emailService.SendVerificationEmailAsync(user.Email, name, token,"EmailVerification"); 
 				if (emailSendingResult.Success != true)
 				{
-					registrerdUser.Status = VerificationStatus.Failed; // before the mail sending
+					registrerdUser.Status = VerificationStatus.Failed; 
 					_context.Entry(registrerdUser).State = EntityState.Modified;
 					await _context.SaveChangesAsync();
 
@@ -298,8 +293,7 @@ namespace Services
 						errors = emailSendingResult.ErrorMessage
 					};
 				}
-				// if the mail is sent
-				registrerdUser.Status = VerificationStatus.EmailSended; // before the mail sending
+				registrerdUser.Status = VerificationStatus.EmailSended; 
 				_context.Entry(registrerdUser).State = EntityState.Modified;
 				await _context.SaveChangesAsync();
 
@@ -332,7 +326,6 @@ namespace Services
 		public async Task<RegistrationResponse<string>> RegisterTeacher(ProfInscriptionDTO user)
 		{
 			var userRegistrationResult = await RegisterUser(user.user);
-			//|| userRegistrationResult.UserId == 0
 			if (userRegistrationResult.Code != 1 && userRegistrationResult.IsEmailSended==true )
 			{
 				return new RegistrationResponse<string> { Code = userRegistrationResult.Code,IsEmailSended=userRegistrationResult.IsEmailSended,  Message = "Something went wrong in RegisterUser" };

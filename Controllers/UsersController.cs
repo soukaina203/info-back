@@ -18,7 +18,6 @@ namespace Controllers
 			_userService = userService;
 		}
 
-		// GET api/users/5
 		[HttpGet("{id}")]
 		public  async Task<IActionResult> GetUserById(int id)
 		{

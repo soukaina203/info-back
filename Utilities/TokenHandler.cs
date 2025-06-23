@@ -36,14 +36,13 @@ namespace Utilities
                 ValidIssuer = _issuer,
                 ValidAudience = _audience,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
-                ClockSkew = TimeSpan.Zero // No tolerance for expiration time
+                ClockSkew = TimeSpan.Zero
             }, out _);
 
             return principal;
         }
         catch
         {
-            // Token validation failed
             return null;
         }
     }
@@ -63,7 +62,7 @@ namespace Utilities
 				issuer: _issuer,
 				audience: _audience,
 				claims: claims,
-				expires: DateTime.UtcNow.AddMinutes(60), // for dev then it will be for 15min
+				expires: DateTime.UtcNow.AddMinutes(60), 
 				signingCredentials: creds);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);
