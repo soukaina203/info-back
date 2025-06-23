@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\hp\\Desktop\\stageRepos\\info-backend\\info-backend.csproj": {}
+    "C:\\Users\\hp\\Desktop\\LastTest\\info-back\\info-backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hp\\Desktop\\stageRepos\\info-backend\\info-backend.csproj": {
+    "C:\\Users\\hp\\Desktop\\LastTest\\info-back\\info-backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hp\\Desktop\\stageRepos\\info-backend\\info-backend.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\Desktop\\LastTest\\info-back\\info-backend.csproj",
         "projectName": "info-backend",
-        "projectPath": "C:\\Users\\hp\\Desktop\\stageRepos\\info-backend\\info-backend.csproj",
+        "projectPath": "C:\\Users\\hp\\Desktop\\LastTest\\info-back\\info-backend.csproj",
         "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hp\\Desktop\\stageRepos\\info-backend\\obj\\",
+        "outputPath": "C:\\Users\\hp\\Desktop\\LastTest\\info-back\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\hp\\AppData\\Roaming\\NuGet\\NuGet.Config"

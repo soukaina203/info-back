@@ -2,18 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using context;
 
 #nullable disable
 
-namespace info_backend.Migrations
+namespace info_backend.Migrations.project
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250623225306_init db")]
+    partial class initdb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -273,7 +276,6 @@ namespace info_backend.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("Telephone")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

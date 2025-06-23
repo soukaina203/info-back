@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  info-backend:
+    container_name: info-backend
+    build: .
+    ports:
+      - "5107:5000"
+    environment:
+      - ASPNETCORE_URLS=http://+:5000
+      # - DefaultConnection=Server=localhost;Port=543200;Database=infoAcademie;Username=postgres;Password=maRaNV
+    volumes:
+      - ./wwwroot:/app/wwwroot
+    depends_on:
+      - pg-db
+    networks:
+      - info-network
+
+  pg-db:
+    container_name: pg-db
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=maRaNV
+    ports:
+      - "5433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - info-network
+
+volumes:
+  pgdata:
+
+networks:
+  info-network:
+    driver: bridge
+
+
+# docker-compose up -d --build
