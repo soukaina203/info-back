@@ -70,10 +70,10 @@ namespace Controllers
 		}
 		
 		
-		[HttpPost]
-		public async Task<IActionResult> ForgetPassword(ForgetPwdDTO userData )
+		[HttpGet("{email}")]
+		public async Task<IActionResult> ForgetPassword(string email )
 		{
-			var result = await _accountService.ForgetPassword(userData);
+			var result = await _accountService.ForgetPassword(email);
 
 			return Ok(result);
 		}

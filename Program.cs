@@ -6,11 +6,11 @@ using Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+
 Env.Load(); 
 var builder = WebApplication.CreateBuilder(args);
 
-// Read from environment (already loaded by DotNetEnv)
-var allowedOrigins = Environment.GetEnvironmentVariable("AllowedOrigins");
+var allowedOrigins = Environment.GetEnvironmentVariable("AllowedOrigins")?? "http://localhost:4200";
 
 builder.Services.AddCors(options =>
 {
@@ -22,10 +22,8 @@ builder.Services.AddCors(options =>
 
 
 
-// Add .env variables to configuration
 builder.Configuration.AddEnvironmentVariables();
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

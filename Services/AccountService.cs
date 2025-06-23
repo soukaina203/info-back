@@ -198,26 +198,26 @@ namespace Services
 
 
 
-		public async Task<ResponseDTO> ForgetPassword(ForgetPwdDTO userData)
+		public async Task<ResponseDTO> ForgetPassword(string email)
 		{
 			try
 			{
 				
-				var IsEmailExists= await _context.Users.Where(u=>u.Email==userData.Email).FirstOrDefaultAsync();
+				var emailUser= await _context.Users.Where(u=>u.Email==email).FirstOrDefaultAsync();
 				// Générer le token
-				if (IsEmailExists==null)
+				if (emailUser==null)
 				{
 						return new ResponseDTO  {
 						Code = 404,
 						Message = "L'e-mail n'existe pas"
 					};
 				}
-				var token = _jwtService.GenerateToken(userData.Id.ToString(), userData.Email);
+				var token = _jwtService.GenerateToken(emailUser.Id.ToString(), emailUser.Email);
 
 				// Envoyer l'e-mail
 				var emailSendingResult = await _emailService.SendVerificationEmailAsync(
-					userData.Email,
-					userData.Name,
+					emailUser.Email,
+					emailUser.FirstName,
 					token,
 					"ResetPwdEmail"
 				);

@@ -15,7 +15,7 @@ publish/**
 wwwroot/cvs/
 wwwroot/photos/
 wwwroot/classes/
-
+appsettings.Development.json
 
 # db/dev.db
 
