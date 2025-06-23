@@ -134,59 +134,59 @@ namespace Services
 		}
 
 
-	public async Task<object> SearchUsers(string nom, string prenom, string email, int roleId)
-	{
-		var query = _context.Users
-			.Include(u => u.Role)
-			.AsQueryable();
-
-		if (nom != "null" && !string.IsNullOrEmpty(nom))
+		public async Task<object> SearchUsers(string nom, string prenom, string email, int roleId)
 		{
-			query = query.Where(u => u.LastName.ToLower().Contains(nom.Trim().ToLower()));
-		}
+			var query = _context.Users
+				.Include(u => u.Role)
+				.AsQueryable();
 
-		if (prenom != "null" && !string.IsNullOrEmpty(prenom))
-		{
-			query = query.Where(u => u.FirstName.ToLower().Contains(prenom.Trim().ToLower()));
-		}
-
-		if (email != "null" && !string.IsNullOrEmpty(email))
-		{
-			query = query.Where(u => u.Email.ToLower().Contains(email.Trim().ToLower()));
-		}
-
-		if (roleId > 0)
-		{
-			query = query.Where(u => u.RoleId == roleId);
-		}
-
-		var result = await query
-			.Select(u => new UserSearchDTO
+			if (nom != "null" && !string.IsNullOrEmpty(nom))
 			{
-				Id = u.Id,
-				LastName = u.LastName,
-				FirstName = u.FirstName,
-				Email = u.Email,
-				RoleId = u.RoleId,
-				RoleName = u.Role != null ? u.Role.Name : string.Empty
-			})
-			.ToListAsync();
-
-		return new
-		{
-			query = new
-			{
-				result
-			},
-			filters = new
-			{
-				nom,
-				prenom,
-				email,
-				roleId
+				query = query.Where(u => u.LastName.ToLower().Contains(nom.Trim().ToLower()));
 			}
-		};
-	}
+
+			if (prenom != "null" && !string.IsNullOrEmpty(prenom))
+			{
+				query = query.Where(u => u.FirstName.ToLower().Contains(prenom.Trim().ToLower()));
+			}
+
+			if (email != "null" && !string.IsNullOrEmpty(email))
+			{
+				query = query.Where(u => u.Email.ToLower().Contains(email.Trim().ToLower()));
+			}
+
+			if (roleId > 0)
+			{
+				query = query.Where(u => u.RoleId == roleId);
+			}
+
+			var result = await query
+				.Select(u => new UserSearchDTO
+				{
+					Id = u.Id,
+					LastName = u.LastName,
+					FirstName = u.FirstName,
+					Email = u.Email,
+					RoleId = u.RoleId,
+					RoleName = u.Role != null ? u.Role.Name : string.Empty
+				})
+				.ToListAsync();
+
+			return new
+			{
+				query = new
+				{
+					result
+				},
+				filters = new
+				{
+					nom,
+					prenom,
+					email,
+					roleId
+				}
+			};
+		}
 
 	}
 

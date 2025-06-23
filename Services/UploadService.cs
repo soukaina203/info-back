@@ -45,7 +45,6 @@ namespace Services
 			try
 			{
 		
-
 				var result = await UploadFile(filename, folder); 
 				var user = await _context.ProfProfiles.Where(e=> e.Cv==oldFileName).FirstOrDefaultAsync();
 				if (user!=null)
@@ -71,11 +70,6 @@ namespace Services
 				
 			}
 		}
-
-
-
-
-
 
 
 		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file, string folderName)
