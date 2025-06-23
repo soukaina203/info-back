@@ -6,11 +6,8 @@ namespace Models
     {
         public int Id { get; set; }
 
-        public int UserId { get; set; }  // FK to User
+        public int UserId { get; set; } 
 
-
-
-        // Navigation to parent User
         public User User { get; set; } = null!;
     }
 }

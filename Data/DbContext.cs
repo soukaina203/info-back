@@ -29,7 +29,7 @@ namespace context
 
 				modelBuilder.Entity<User>()
 					.Property(u => u.Status)
-					.HasConversion<string>(); // Stocké sous forme de texte
+					.HasConversion<string>(); 
 			}
 
 

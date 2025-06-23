@@ -28,18 +28,15 @@ namespace Services
 				var query = _context.Classes.Include(r => r.User).AsQueryable();
 
 
-			// Filter by title
 			if (title != "null" && !string.IsNullOrEmpty(title))
 			{
 				query = query.Where(r => r.Title.ToLower().Contains(title.Trim().ToLower()));
 			}
 
-			// Filter by date (if provided)
 			if (!string.IsNullOrEmpty(date))
 			{
 				if (DateTime.TryParse(date, out var parsedDate))
 				{
-					// Compare just the date parts (ignoring time)
 					query = query.Where(r =>
 						r.Date.Year == parsedDate.Year &&
 						r.Date.Month == parsedDate.Month &&
@@ -47,7 +44,6 @@ namespace Services
 				}
 			}
 
-			// Filter by prof name
 			if (prof != "null" && !string.IsNullOrEmpty(prof))
 			{
 				query = query.Where(r =>
@@ -95,18 +91,15 @@ namespace Services
 			var query = _context.Classes.Include(r => r.User).AsQueryable();
 
 
-			// Filter by title
 			if (title != "null" && !string.IsNullOrEmpty(title))
 			{
 				query = query.Where(r => r.Title.ToLower().Contains(title.Trim().ToLower()));
 			}
 
-			// Filter by date (if provided)
 			if (!string.IsNullOrEmpty(date))
 			{
 				if (DateTime.TryParse(date, out var parsedDate))
 				{
-					// Compare just the date parts (ignoring time)
 					query = query.Where(r =>
 						r.Date.Year == parsedDate.Year &&
 						r.Date.Month == parsedDate.Month &&
@@ -114,7 +107,6 @@ namespace Services
 				}
 			}
 
-			// Filter by prof name
 			if (prof != "null" && !string.IsNullOrEmpty(prof))
 			{
 				query = query.Where(r =>

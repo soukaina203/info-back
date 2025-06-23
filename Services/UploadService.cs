@@ -23,7 +23,6 @@ namespace Services
 
 		public async Task<ResponseDTO> PutFile(string folder, string? oldFileName, IFormFile filename)
 		{
-			// Validate input
 			if (string.IsNullOrEmpty(folder) || string.IsNullOrEmpty(oldFileName))
 			{
 				return new ResponseDTO {Code = 403 , Message="Invalid"};
@@ -47,8 +46,7 @@ namespace Services
 			{
 		
 
-				// Upload the new file
-				var result = await UploadFile(filename, folder); // Use the folder parameter
+				var result = await UploadFile(filename, folder); 
 				var user = await _context.ProfProfiles.Where(e=> e.Cv==oldFileName).FirstOrDefaultAsync();
 				if (user!=null)
 				{
@@ -57,16 +55,13 @@ namespace Services
 					_context.Entry(user).State = EntityState.Modified;
 					await _context.SaveChangesAsync();
 				}
-				// Check the result and construct the response
 				if (result != null)
 				{
-							// Delete the old file
 					System.IO.File.Delete(filePath);
 
 					return new ResponseDTO{Code = 200 ,  Message = result.Msg, File = result.FileName };
 				}
 
-				// Return a BadRequest if the upload fails
 					return new ResponseDTO{Code = 500 ,  Message = "File upload failed" };
 				
 			}
@@ -86,7 +81,7 @@ namespace Services
 		public async Task<FileUploadResponseDTO> UploadFile(IFormFile file, string folderName)
 		{
 			if (file == null || file.Length == 0)
-			{ // code -1 failure
+			{ 
 				return new FileUploadResponseDTO
 				{
 					Msg = "No file uploaded or file is empty.",
@@ -102,11 +97,9 @@ namespace Services
 				_ = Directory.CreateDirectory(uploadsFolder);
 			}
 
-			// Generate a random number of length 7
 			var random = new Random();
 			var randomNumber = random.Next(1000000, 9999999);
 
-			// Create a new filename with the random number
 			var newFileName = $"{randomNumber}_{file.FileName}";
 
 			var filePath = Path.Combine(uploadsFolder, newFileName);
@@ -115,7 +108,6 @@ namespace Services
 			{
 				await file.CopyToAsync(stream);
 			}
-			// code 1 = success
 			return new FileUploadResponseDTO
 			{
 				Msg = "success",

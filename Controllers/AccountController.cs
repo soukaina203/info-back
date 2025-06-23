@@ -1,148 +1,141 @@
 using Microsoft.AspNetCore.Mvc;
-using Models;           // Make sure you have a User or Account model in here
-using context;          // This should be your actual namespace (e.g., MyApp.Data)
-using Services;
-using Utilities;
+using Models;               // Contient probablement l'entité User ou Account
+using context;              // Namespace pour la base de données (ex. : MyApp.Data)
+using Services;             // Contient les services métier
+using Utilities;            // Pour les utilitaires comme le JWT
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using DTO;
-using Enums;
+using DTO;                  // Objets de transfert de données
+using Enums;                // Pour les énumérations comme VerificationStatus
 
 namespace Controllers
 {
-	[ApiController]
-	[Route("api/[controller]/[action]")]
-	public class AccountController : ControllerBase
-	{
-		private readonly AppDbContext _context;
-		private readonly AccountService _accountService;
-		private readonly EmailService _emailService;
-		private readonly JwtService _jwtService;
+    [ApiController]
+    [Route("api/[controller]/[action]")]
+    public class AccountController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+        private readonly AccountService _accountService;
+        private readonly EmailService _emailService;
+        private readonly JwtService _jwtService;
 
-		
+        // Injection des dépendances dans le constructeur
+        public AccountController(AppDbContext context, AccountService accountService, EmailService emailService, JwtService jwtService)
+        {
+            _context = context;
+            _accountService = accountService;
+            _emailService = emailService;
+            _jwtService = jwtService;
+        }
 
-		public AccountController(AppDbContext context, AccountService accountService,EmailService emailService, JwtService jwtService)
-		{
-			_context = context;
-			_jwtService = jwtService;
-			_accountService = accountService;
-			_emailService=emailService;
-		}
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginDTO user)
+        {
+            var result = await _accountService.Login(user);
 
+            // Si login réussi, on ajoute le refresh token dans le cookie sécurisé
+            if (result.Code == 1 && !string.IsNullOrEmpty(result.RefreshToken))
+            {
+                Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTime.UtcNow.AddDays(30)
+                });
+            }
 
-		[HttpPost]
-		public async Task<IActionResult> Login(LoginDTO user)
-		{
-			var result = await _accountService.Login(user);
+            return Ok(result);
+        }
 
-			// Si login réussi, on ajoute le refresh token dans le cookie
-			if (result.Code == 1 && !string.IsNullOrEmpty(result.RefreshToken))
-			{
-				Response.Cookies.Append("refreshToken", result.RefreshToken, new CookieOptions
-				{
-					HttpOnly = true,
-					Secure = true,
-					SameSite = SameSiteMode.None ,
-					Expires = DateTime.UtcNow.AddDays(30)
-				});
+        [HttpPost]
+        public async Task<IActionResult> VerifyRegistrationToken(VerifyRegistrationTokenDTO userData)
+        {
+            var result = await _accountService.VerifyRegistrationToken(userData);
+            return Ok(result);
+        }
 
-		
-			}
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword(ResetPwdDTO userData)
+        {
+            var result = await _accountService.ResetPassword(userData);
+            return Ok(result);
+        }
 
-			return Ok(result);
-		}
-		
-		
-		[HttpPost]
-		public async Task<IActionResult> VerifyRegistrationToken( VerifyRegistrationTokenDTO userData )
-		{
-			var result = await _accountService.VerifyRegistrationToken(userData);
+        [HttpGet("{email}")]
+        public async Task<IActionResult> ForgetPassword(string email)
+        {
+            var result = await _accountService.ForgetPassword(email);
+            return Ok(result);
+        }
 
-			return Ok(result);
-		}
-		
-		[HttpPost]
-		public async Task<IActionResult> ResetPassword(ResetPwdDTO userData )
-		{
-			var result = await _accountService.ResetPassword(userData);
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> ActiveAccount(int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId);
 
-			return Ok(result);
-		}
-		
-		
-		[HttpGet("{email}")]
-		public async Task<IActionResult> ForgetPassword(string email )
-		{
-			var result = await _accountService.ForgetPassword(email);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
 
-			return Ok(result);
-		}
-		
+            // Mise à jour du statut de vérification
+            user.Status = VerificationStatus.Verified;
+            _context.Users.Update(user);
+            await _context.SaveChangesAsync();
 
-		[HttpGet("{userId}")]
-		public async Task<IActionResult> ActiveAccount(int userId)
-		{
-			var user = await _context.Users.FirstOrDefaultAsync(e => e.Id == userId);
+            return Ok(new { Code = 1, Message = "success" });
+        }
 
-			if (user == null)
-			{
-				return NotFound("User not found.");
-			}
+        [HttpPost]
+        public async Task<IActionResult> RegisterStudent(User user)
+        {
+            var result = await _accountService.RegisterUser(user);
+            return Ok(result);
+        }
 
-			user.Status = VerificationStatus.Verified;
-			_context.Users.Update(user);
-			await _context.SaveChangesAsync();
+        [HttpPost]
+        public async Task<IActionResult> RegisterProf(ProfInscriptionDTO user)
+        {
+            var result = await _accountService.RegisterTeacher(user);
+            return Ok(result);
+        }
 
-			return Ok(new{Code = 1 ,Message="success"});
-		}
+        [HttpGet]
+        public async Task<IActionResult> GetServicesData()
+        {
+            // Chargement des données nécessaires à l’inscription (services, niveaux, etc.)
+            var services = await _context.Services.ToListAsync();
+            var specialities = await _context.Specialities.ToListAsync();
+            var niveaux = await _context.Niveaux.ToListAsync();
+            var methods = await _context.Methods.ToListAsync();
 
-		
-		[HttpPost]
-		public async Task<IActionResult> RegisterStudent(User user)
-		{
-			var result = await _accountService.RegisterUser(user);
-				return Ok(result);
+            return Ok(new
+            {
+                services = services,
+                specialities = specialities,
+                niveaux = niveaux,
+                methods = methods
+            });
+        }
 
-		}
-		
-		
-		[HttpPost]
-		public async Task<IActionResult> RegisterProf(ProfInscriptionDTO user)
-		{
-			var result = await _accountService.RegisterTeacher(user);
+        [HttpGet]
+        public async Task<IActionResult> Refresh()
+        {
+            var refreshToken = Request.Cookies["refreshToken"];
 
-				return Ok(result);
+            if (string.IsNullOrEmpty(refreshToken))
+                return Unauthorized();
 
-		}
-		
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
 
-		[HttpGet]
-		public async Task<IActionResult> GetServicesData()
-		{
-			var services = await _context.Services.ToListAsync();
-			var specialities = await _context.Specialities.ToListAsync();
-			var niveaux = await _context.Niveaux.ToListAsync();
-			var methods = await _context.Methods.ToListAsync();
-			return Ok(new { services = services, specialities = specialities, niveaux = niveaux, methods = methods });
-		}
-		
-		
-		[HttpGet()]
-		public async Task<IActionResult> Refresh()
-		{
-			var refreshToken = Request.Cookies["refreshToken"];
-			
-			if (string.IsNullOrEmpty(refreshToken)) return Unauthorized();
+            // Vérifie que le token n'a pas expiré
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                return Unauthorized();
 
-			var user = await _context.Users.FirstOrDefaultAsync(u => u.RefreshToken == refreshToken);
+            var newAccessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
 
-			if (user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-				return Unauthorized(); 
-
-			var newAccessToken = _jwtService.GenerateToken(user.Id.ToString(), user.Email);
-
-			return Ok(new { token = newAccessToken });
-		}
-
-	}
-}	
+            return Ok(new { token = newAccessToken });
+        }
+    }
+}

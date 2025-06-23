@@ -7,12 +7,11 @@ namespace Models
 	{
 		public int Id { get; set; }
 
-		public int UserId { get; set; }  // FK to User
-		public string City { get; set; }  // FK to User
+		public int UserId { get; set; }  
+		public string City { get; set; }  
 		public string Cv { get; set; } = string.Empty;
 		public User? User { get; set; }
 
-		// Related collections
 		public int[] Services { get; set; }
 		public int[] Specialities { get; set; }
 		public int[] Niveaux { get; set; }
