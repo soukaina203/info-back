@@ -28,8 +28,9 @@ cd info-back
 dotnet restore
 ```
 
-## creation de fichier .env 
-ou vous definissez ces variables : 
+## Création d’un fichier .env dans lequel vous définissez les variables suivantes :  
+```bash
+
 # .env
 
 ## for database credentials
@@ -53,6 +54,7 @@ SenderEmail=votreEmail
 SMTP_USER=votreEmail
 SMTP_PASS=codeApplication
 
+```
 
 
 
