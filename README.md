@@ -27,15 +27,10 @@ cd info-back
 ```bash
 dotnet restore
 ```
-## Configurer la base de données :
-Modifier le fichier appsettings.json :
+
+## Création d’un fichier .env dans lequel vous définissez les variables suivantes :  
 ```bash
-"ConnectionStrings": {
-  "DefaultConnection": "Server=localhost;Database=InfoAcademieDb;User Id=sa;Password=YourPassword;"
-}
-```
-## creation de fichier .env 
-ou vous definissez ces variables : 
+
 # .env
 
 ## for database credentials
@@ -59,18 +54,9 @@ SenderEmail=votreEmail
 SMTP_USER=votreEmail
 SMTP_PASS=codeApplication
 
+```
 
-## Generer les migrations pour la base de donnees : 
-dotnet ef migrations add "First Migration"
-dotnet ef migrations script -o Migrations/sample.sql
-puis un fichier sample.sql est generer vous prenez le requettes generers et vous les inserer dans votre SGBD et les executer
 
-## Lancement 
-executer cette fonction : 
-dotnet watch run
-
-Accès à l’interface Swagger :
-http://localhost:5000/swagger
 
 ### Configuration de la base de données
 
@@ -91,7 +77,6 @@ DefaultConnection="Server=localhost;Port=5432;Database=infoAcademie;Username=pos
 Une fois la configuration terminée, il faut générer les fichiers de migration avec la commande suivante :
 
 ```bash
-
 dotnet ef migrations add InitialCreate
 ```
 
